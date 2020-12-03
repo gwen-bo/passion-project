@@ -4,10 +4,9 @@ export default class StartUp extends Phaser.Scene{
   }
 
   $webcam = document.querySelector('#webcam');
+
   // om de input van de webcam om te draaien
   flipPoseHorizontal = true;
-  // canvas.width = window.innerWidth;
-  // canvas.height = window.innerHeight;
 
   // game settings
   poseNet = undefined; 
@@ -31,7 +30,6 @@ export default class StartUp extends Phaser.Scene{
       this.$webcam.addEventListener('loadeddata', () => {
         console.log('webcam loaded');
         this.loaded = true; 
-        // this.scene.stop();
         this.scene.start('start', { restart: false, webcamObj: this.$webcam, poseNet: this.poseNet});    
     });
   }

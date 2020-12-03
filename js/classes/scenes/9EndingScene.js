@@ -21,7 +21,7 @@ export default class EndingScene extends Phaser.Scene{
   onEvent(){
     console.log('time event started');
     this.t++
-    if(this.t === 3){
+    if(this.t >= 10){
       console.log('time event', this.t);
       // this.scene.stop();
       this.scene.start('start', { restart: true, webcamObj: this.$webcam, poseNet: this.poseNet});    

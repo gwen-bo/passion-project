@@ -3,13 +3,10 @@ export default class StartScene extends Phaser.Scene{
     super(config);
   }
 
-  // $webcam = document.querySelector('#webcam');
     $video_wrapper = document.querySelector('#video');
 
   // om de input van de webcam om te draaien
   flipPoseHorizontal = true;
-  // canvas.width = window.innerWidth;
-  // canvas.height = window.innerHeight;
 
   // game settings
   poseNet = undefined; 
@@ -21,7 +18,7 @@ export default class StartScene extends Phaser.Scene{
   t = 0; 
 
   init = (data) => {
-    console.log(`StartScene INIT`, data);
+    console.log(`StartScene INIT`);
     this.state = "STAND_BY";
     this.t = 0; 
     this.$video_wrapper.style.display = "flex";
@@ -36,9 +33,6 @@ export default class StartScene extends Phaser.Scene{
     }
     this.$webcam.width = window.innerWidth;
     this.$webcam.height = window.innerHeight;
-
-    const videoHeight = window.innerHeight;
-    const videoWidth = window.innerWidth;
   }
 
   poseEstimation = async () => {
@@ -109,16 +103,11 @@ export default class StartScene extends Phaser.Scene{
         this.$video_open.style.display = "inline";
       break; 
 
-      // case "READY": 
-      //   console.log('tutorial kan beginnen');
-      break; 
-
       case "STAND_BY": 
         this.$video_closed.style.display = "inline";
         this.$video_overgang.style.display = "none";    
         this.$video_open.style.display = "none";        
     
-      // this.changeSourcePassive();
         if(this.timerActivated === true){
           this.timerActivated = false; 
           this.timedEvent.remove();

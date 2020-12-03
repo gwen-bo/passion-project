@@ -65,7 +65,7 @@ export default class Tutorial2_goal extends Phaser.Scene{
     for (let i = 0; i < keypoints.length; i++) {
         this.handleKeyPoint(keypoints[i], scale);
     }
-}
+  }
 
   handleKeyPoint = (keypoint, scale) => {
     if(!(keypoint.part === "leftWrist" || keypoint.part === "rightWrist" )) {
@@ -82,8 +82,10 @@ export default class Tutorial2_goal extends Phaser.Scene{
   };
 
   preload(){
-    this.load.image('handR', './assets/keypoints/handR.png');
-    this.load.image('handL', './assets/keypoints/handL.png');
+    this.load.multiatlas('batterij-tut2', './assets/spritesheets/batterij/blauw/blauw.json', './assets/spritesheets/batterij/blauw/batterij');  
+
+    // this.load.image('handR', './assets/keypoints/handR.png');
+    // this.load.image('handL', './assets/keypoints/handL.png');
     this.load.image('voetR', './assets/keypoints/voetR.png')
     this.load.image('voetL', './assets/keypoints/voetL.png')
   }
@@ -101,9 +103,9 @@ export default class Tutorial2_goal extends Phaser.Scene{
   handRight = undefined; 
 
   create(){
-    this.keypointsGameOjb.leftWrist = this.add.image(this.skeleton.leftWrist.x, this.skeleton.leftWrist.y, 'handL');
+    this.keypointsGameOjb.leftWrist = this.add.image(this.skeleton.leftWrist.x, this.skeleton.leftWrist.y, 'voetL');
     this.handLeft = this.physics.add.existing(this.keypointsGameOjb.leftWrist);
-    this.keypointsGameOjb.rightWrist = this.add.image(this.skeleton.rightWrist.x,this.skeleton.rightWrist.y, 'handR');
+    this.keypointsGameOjb.rightWrist = this.add.image(this.skeleton.rightWrist.x,this.skeleton.rightWrist.y, 'voetR');
     this.handRight = this.physics.add.existing(this.keypointsGameOjb.rightWrist);
 
     this.targetGroup = this.physics.add.group(); 
@@ -111,13 +113,17 @@ export default class Tutorial2_goal extends Phaser.Scene{
     this.physics.add.overlap(this.handLeft, this.targetGroup, this.handleHit, null, this);
     this.physics.add.overlap(this.handRight, this.targetGroup, this.handleHit, null, this);
 
-    var timer = this.time.addEvent({
-      delay: 1000,                // ms
-      callback: this.drawTutorial(),
-      //args: [],
-      callbackScope: this,
-      loop: false
-  });
+    let batterijObj = this.add.sprite(900,700, 'batterij-tut2', 'blauw-0.png');
+    batterijObj.setScale(0.2, 0.2);
+
+    var frameNames = this.anims.generateFrameNames('batterij-tut2', {
+      start: 0, end: 58,
+      suffix: '.png', zeroPad: 0,
+    });
+    this.anims.create({ key: 'walk', frames: frameNames, frameRate: 25, repeat: -1 });
+    batterijObj.anims.play('walk');
+    this.targetGroup.add(batterijObj, false);
+
   }
 
     // welke functie er opgeropen wordt bij de overlap tussen de speler 
@@ -126,14 +132,6 @@ export default class Tutorial2_goal extends Phaser.Scene{
       goal.destroy();
       // this.scene.stop('tutorial2_goal');
       this.scene.start('gameBegin', { restart: this.restartNext, webcamObj: this.$webcam, poseNet: this.poseNet, skeletonObj: this.skeleton});    
-  }
-  
-  drawTutorial(){
-      let xGoal = 900
-      let yGoal = 700;
-  
-      let tutTarget = this.add.rectangle(xGoal, yGoal, 100, 100, "red");
-      this.targetGroup.add(tutTarget, false);
   }
 
   update(){

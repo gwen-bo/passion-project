@@ -89,10 +89,9 @@ export default class Tutorial1_goal extends Phaser.Scene{
 
   preload(){
     this.load.multiatlas('batterij', './assets/spritesheets/batterij/blauw/blauw.json', './assets/spritesheets/batterij/blauw/batterij');  
+
     this.load.image('handR', './assets/keypoints/handR.png');
     this.load.image('handL', './assets/keypoints/handL.png');
-    this.load.image('voetR', './assets/keypoints/voetR.png')
-    this.load.image('voetL', './assets/keypoints/voetL.png')
   }
 
 
@@ -118,41 +117,26 @@ export default class Tutorial1_goal extends Phaser.Scene{
     this.physics.add.overlap(this.handLeft, this.targetGroup, this.handleHit, null, this);
     this.physics.add.overlap(this.handRight, this.targetGroup, this.handleHit, null, this);
 
-    // let batterijObj = this.add.sprite(500,500, 'batterij', 'blauw-0.png');
-    // batterijObj.setScale(0.5, 0.5);
+    let batterijObj = this.add.sprite(250,200, 'batterij', 'blauw-0.png');
+    batterijObj.setScale(0.2, 0.2);
 
-    // var frameNames = this.anims.generateFrameNames('batterij', {
-    //   start: 0, end: 28,
-    //   prefix: 'blauw-', suffix: '.png'
-    // });
-    // this.anims.create({ key: 'walk', frames: frameNames, frameRate: 10, repeat: -1 });
-    // batterijObj.anims.play('walk');
-   
-    var timer = this.time.addEvent({
-      delay: 1000,                // ms
-      callback: this.drawTutorial(),
-      //args: [],
-      callbackScope: this,
-      loop: false
-  });
+    var frameNames = this.anims.generateFrameNames('batterij', {
+      start: 0, end: 58,
+      suffix: '.png', zeroPad: 0,
+    });
+    this.anims.create({ key: 'walk', frames: frameNames, frameRate: 25, repeat: -1 });
+    batterijObj.anims.play('walk');
+    this.targetGroup.add(batterijObj, false);
+
   }
 
     // welke functie er opgeropen wordt bij de overlap tussen de speler 
     handleHit (hand, goal){
       console.log('hit')
       goal.destroy();
-      this.scene.restart();
       this.scene.start('tutorial2', { restart: this.restartNext, webcamObj: this.$webcam, poseNet: this.poseNet, skeletonObj: this.skeleton});    
   }
   
-  drawTutorial(){
-      let xGoal = 250
-      let yGoal = 200;
-  
-      let tutTarget = this.add.rectangle(xGoal, yGoal, 100, 100, "red");
-      this.targetGroup.add(tutTarget, false);
-    }
-
   update(){
     // callback function
     this.poseEstimation();

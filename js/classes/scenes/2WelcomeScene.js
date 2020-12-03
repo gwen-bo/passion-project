@@ -3,13 +3,11 @@ export default class WelcomeScene extends Phaser.Scene{
       super(config);
     }
   
-    // $webcam = document.querySelector('#webcam');
-      $video_wrapper = document.querySelector('#video');
+    $video_wrapper = document.querySelector('#video');
   
     // om de input van de webcam om te draaien
     flipPoseHorizontal = true;
-    // canvas.width = window.innerWidth;
-    // canvas.height = window.innerHeight;
+
   
     // game settings
     poseNet = undefined; 
@@ -20,7 +18,7 @@ export default class WelcomeScene extends Phaser.Scene{
     t = 0; 
   
     init = (data) => {
-      console.log(`WelcomeScene INIT`, data);
+      console.log(`WelcomeScene INIT`);
       this.t = 0; 
       this.$video_wrapper.style.display = "flex";
   
@@ -35,8 +33,6 @@ export default class WelcomeScene extends Phaser.Scene{
       this.$webcam.width = window.innerWidth;
       this.$webcam.height = window.innerHeight;
   
-      const videoHeight = window.innerHeight;
-      const videoWidth = window.innerWidth;
     }
   
     poseEstimation = async () => {
@@ -44,7 +40,7 @@ export default class WelcomeScene extends Phaser.Scene{
           flipHorizontal: this.flipPoseHorizontal,
       });
       this.poses = this.poses.concat(pose);
-      this.poses.forEach(({score, keypoints}) => {
+      this.poses.forEach(({score}) => {
         if(score > 0.4){
             this.$video_closed.style.display = "none";
             this.$video_overgang.style.display = "none";
@@ -70,7 +66,7 @@ export default class WelcomeScene extends Phaser.Scene{
       this.$video_overgang.style.display = "inline";
       this.$video_open.style.display = "none";
 
-      let txt = this.add.text(300, 100, 'Hey! Ben je er klaar voor? Laten we beginnen');
+      this.add.text(300, 100, 'Hey! Ben je er klaar voor? Laten we beginnen');
       this.timedEvent = this.time.addEvent({ delay: 1000, callback: this.onEvent, callbackScope: this, repeat: 10 });    
     }
   

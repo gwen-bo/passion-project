@@ -10,14 +10,12 @@ import GamePlayScene from './scenes/8GamePlayScene.js'; // gameplay -
 import EndingScene from './scenes/9EndingScene.js'; // ending scene -
 import TimeOutScene from './scenes/TimeOutScene.js'; // time out function - melding
 
-// import GameScene from './scenes/StartScene.js';
-
 export default class Game extends Phaser.Game{
   constructor(){
     let config = {
       type: Phaser.AUTO,
       width: 1464,
-      height: 928,
+      height: 900,
       backgroundColor: 6337683,
       physics: {
         default: 'arcade',
@@ -43,6 +41,5 @@ export default class Game extends Phaser.Game{
     this.scene.add(`timeOut`, TimeOutScene, false);
 
     this.scene.start('startup');
-
   }
 }

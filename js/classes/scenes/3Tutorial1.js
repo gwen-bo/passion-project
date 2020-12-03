@@ -37,8 +37,8 @@ export default class Tutorial1Scene extends Phaser.Scene{
     this.restartNext = data.restart;
 
     this.skeleton = {
-      "leftWrist": {part: "leftWrist", x: 500, y: 500},
-      "rightWrist": {part: "rightWrist", x: 500, y: 500}
+      "leftWrist": {part: "leftWrist", x: 400, y: 500},
+      "rightWrist": {part: "rightWrist", x: 600, y: 500}
     };
 
     if(this.restart === true){
@@ -91,8 +91,8 @@ export default class Tutorial1Scene extends Phaser.Scene{
   preload(){
     this.load.image('handR', './assets/keypoints/handR.png');
     this.load.image('handL', './assets/keypoints/handL.png');
-    this.load.image('voetR', './assets/keypoints/voetR.png')
-    this.load.image('voetL', './assets/keypoints/voetL.png')
+    // this.load.image('voetR', './assets/keypoints/voetR.png')
+    // this.load.image('voetL', './assets/keypoints/voetL.png')
   }
 
 

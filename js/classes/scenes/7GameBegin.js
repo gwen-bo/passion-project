@@ -8,15 +8,6 @@ export default class GameBegin extends Phaser.Scene{
   // om de input van de webcam om te draaien
   flipPoseHorizontal = true;
 
-  videoHeight = window.innerHeight;
-  videoWidth = window.innerWidth;
-  beginHeight = 300; 
-  beginWidth = 600; 
-  endHeight = window.innerHeight - 300;
-  endWidth = window.innerWidth - 600;
-  margeWidth =  this.endWidth - this.beginWidth; 
-  margeHeight = this.endHeight - this.beginHeight; 
-
   poseNet = undefined; 
   poses = [];
   restart = false; 

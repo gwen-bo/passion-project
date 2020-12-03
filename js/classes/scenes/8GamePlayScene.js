@@ -6,15 +6,6 @@ export default class GamePlayScene extends Phaser.Scene{
   // om de input van de webcam om te draaien
   flipPoseHorizontal = true;
 
-  videoHeight = window.innerHeight;
-  videoWidth = window.innerWidth;
-  beginHeight = 300; 
-  beginWidth = 600; 
-  endHeight = window.innerHeight - 300;
-  endWidth = window.innerWidth - 600;
-  margeWidth =  this.endWidth - this.beginWidth; 
-  margeHeight = this.endHeight - this.beginHeight; 
-
   poseNet = undefined; 
   poses = [];
   paused = false; 
@@ -29,7 +20,7 @@ export default class GamePlayScene extends Phaser.Scene{
 
     console.log(`Gameplay scene INIT`);
     
-    this.score = -1;
+    this.score = 0;
 
     this.$webcam.width = window.innerWidth;
     this.$webcam.height = window.innerHeight;
@@ -88,7 +79,23 @@ export default class GamePlayScene extends Phaser.Scene{
     this.load.image('handR', './assets/keypoints/handR.png');
     this.load.image('handL', './assets/keypoints/handL.png');
     this.load.image('voetR', './assets/keypoints/voetR.png')
-    this.load.image('voetL', './assets/keypoints/voetL.png')
+    this.load.image('voetL', './assets/keypoints/voetL.png');
+
+    this.load.audio('energy', 'assets/goal/energy.mp3');
+
+    this.load.multiatlas('batterij-tut2', './assets/spritesheets/batterij/blauw/blauw.json', './assets/spritesheets/batterij/blauw/batterij');  
+
+    this.load.image('score-0', './assets/goal/meter/score-0.png');
+    this.load.image('score-1', './assets/goal/meter/score-1.png');
+    this.load.image('score-2', './assets/goal/meter/score-2.png');
+    this.load.image('score-3', './assets/goal/meter/score-3.png');
+    this.load.image('score-4', './assets/goal/meter/score-4.png');
+    this.load.image('score-5', './assets/goal/meter/score-5.png');
+    this.load.image('score-6', './assets/goal/meter/score-6.png');
+    this.load.image('score-7', './assets/goal/meter/score-7.png');
+    this.load.image('score-8', './assets/goal/meter/score-8.png');
+    this.load.image('score-9', './assets/goal/meter/score-9.png');
+    this.load.image('score-10', './assets/goal/meter/score-10.png');
   }
 
   keypointsGameOjb = {
@@ -102,28 +109,31 @@ export default class GamePlayScene extends Phaser.Scene{
   handLeft = undefined; 
   handRight = undefined; 
   targetGroup = undefined; 
+  energyMeter; 
+  energySound;
 
   create(){
+    this.screenWidthCenter = this.cameras.main.worldView.centerX;
+    this.score = 0;
+
     this.keypointsGameOjb.leftWrist = this.add.image(this.skeleton.leftWrist.x, this.skeleton.leftWrist.y, 'handL');
     this.handLeft = this.physics.add.existing(this.keypointsGameOjb.leftWrist);
     this.keypointsGameOjb.rightWrist = this.add.image(this.skeleton.rightWrist.x,this.skeleton.rightWrist.y, 'handR');
     this.handRight = this.physics.add.existing(this.keypointsGameOjb.rightWrist);
 
+    this.energyMeter = this.add.image(0, 0, 'score-0');
+    console.log(this.cameras.main.worldView);
+    this.aGrid = new AlignGrid({scene: this.scene, rows:8, cols: 11, height: this.cameras.main.worldView.height, width: this.cameras.main.worldView.width})
+    // this.aGrid.showNumbers();
+    this.aGrid.placeAtIndex(5, this.energyMeter);
+
     this.targetGroup = this.physics.add.group(); 
 
-    let x = Phaser.Math.Between(200, 1000);
-    let y = Phaser.Math.Between(200, 600);
-
+    this.energySound = this.sound.add('energy', {loop: false});
     this.physics.add.overlap(this.handLeft, this.targetGroup, this.handleHit, null, this);
     this.physics.add.overlap(this.handRight, this.targetGroup, this.handleHit, null, this);
     
-    var timer = this.time.addEvent({
-      delay: 2000,                // ms
-      callback: this.drawGoal(),
-      //args: [],
-      callbackScope: this,
-      loop: false
-  });
+    this.drawGoal();
   }
 
   handleHit (hand, goal){
@@ -133,7 +143,7 @@ export default class GamePlayScene extends Phaser.Scene{
 
       console.log('hit');
       this.score++
-
+      this.energySound.play();
       goal.destroy();
       this.drawGoal();
   }
@@ -157,15 +167,61 @@ export default class GamePlayScene extends Phaser.Scene{
     this.keypointsGameOjb.rightWrist.x = this.skeleton.rightWrist.x;
     this.keypointsGameOjb.rightWrist.y = this.skeleton.rightWrist.y;
 
-    if(this.score >= 10){
-      console.log('score hit!');
-      this.scene.start('ending', { webcamObj: this.$webcam, poseNet: this.poseNet});    
-    }
+    // if(this.score >= 10){
+    //   console.log('score hit!');
+    //   this.scene.start('ending', { webcamObj: this.$webcam, poseNet: this.poseNet});    
+    // }
 
     if(this.paused === true){
       this.scene.launch('timeOut', {currentScene: 'gameplay'});  
     }else if(this.paused === false){
       this.scene.stop('timeOut');
+    }
+
+    switch(this.score){
+
+      case 1: 
+        this.energyMeter.setTexture('score-1');
+      break;
+
+      case 2: 
+        this.energyMeter.setTexture('score-2');
+      break;
+
+      case 3: 
+        this.energyMeter.setTexture('score-3');
+      break;
+
+      case 4: 
+        this.energyMeter.setTexture('score-4');
+      break;
+
+      case 5: 
+        this.energyMeter.setTexture('score-5');
+      break;
+
+      case 6: 
+        this.energyMeter.setTexture('score-6');
+      break;
+
+      case 7: 
+        this.energyMeter.setTexture('score-7');
+      break;
+
+      case 8: 
+        this.energyMeter.setTexture('score-8');
+      break;
+
+      case 9: 
+        this.energyMeter.setTexture('score-9');
+      break;
+
+      case 10: 
+        console.log('score hit!');
+        this.energyMeter.setTexture('score-10');
+        this.scene.start('ending', { webcamObj: this.$webcam, poseNet: this.poseNet});   
+      break;
+
     }
 
   }

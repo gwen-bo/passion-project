@@ -37,8 +37,8 @@ export default class Tutorial2Scene extends Phaser.Scene{
     this.restartNext = data.restart;
 
     this.skeleton = {
-      "leftWrist": {part: "leftWrist", x: 500, y: 500},
-      "rightWrist": {part: "rightWrist", x: 500, y: 500}
+      "leftWrist": {part: "leftWrist", x: 400, y: 500},
+      "rightWrist": {part: "rightWrist", x: 600, y: 500}
     };
 
     if(this.restart === true){
@@ -89,8 +89,7 @@ export default class Tutorial2Scene extends Phaser.Scene{
 
 
   preload(){
-    this.load.image('handR', './assets/keypoints/handR.png');
-    this.load.image('handL', './assets/keypoints/handL.png');
+
     this.load.image('voetR', './assets/keypoints/voetR.png')
     this.load.image('voetL', './assets/keypoints/voetL.png')
   }
@@ -108,9 +107,9 @@ export default class Tutorial2Scene extends Phaser.Scene{
   handRight = undefined; 
 
   create(){
-    this.keypointsGameOjb.leftWrist = this.add.image(this.skeleton.leftWrist.x, this.skeleton.leftWrist.y, 'handL');
+    this.keypointsGameOjb.leftWrist = this.add.image(this.skeleton.leftWrist.x, this.skeleton.leftWrist.y, 'voetL');
     this.handLeft = this.physics.add.existing(this.keypointsGameOjb.leftWrist);
-    this.keypointsGameOjb.rightWrist = this.add.image(this.skeleton.rightWrist.x,this.skeleton.rightWrist.y, 'handR');
+    this.keypointsGameOjb.rightWrist = this.add.image(this.skeleton.rightWrist.x,this.skeleton.rightWrist.y, 'voetR');
     this.handRight = this.physics.add.existing(this.keypointsGameOjb.rightWrist);
 
     this.timedEvent = this.time.addEvent({ delay: 1000, callback: this.onEvent, callbackScope: this, repeat: 10 });    
