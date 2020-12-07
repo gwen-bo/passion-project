@@ -1,0 +1,62 @@
+{
+	"textures": [
+		{
+			"image": "hart-4.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 270,
+				"h": 489
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "hart4.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 268,
+						"h": 239
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 268,
+						"h": 239
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 268,
+						"h": 239
+					}
+				},
+				{
+					"filename": "hart4-1.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 267,
+						"h": 246
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 267,
+						"h": 246
+					},
+					"frame": {
+						"x": 1,
+						"y": 242,
+						"w": 267,
+						"h": 246
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:e3a2e6674afcde0af27e0c230348e4c6:9c67a4acd7b939ce0595a31a7521619c:0fc24045b9cd1fc17724a34e96422b40$"
+	}
+}
