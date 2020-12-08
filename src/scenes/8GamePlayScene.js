@@ -158,28 +158,46 @@ export class GamePlayScene extends Phaser.Scene{
     this.hitSound = this.sound.add('hit', {loop: false});
     this.physics.add.overlap(this.keypointGroup, this.targetGroup, this.handleHit, null, this);
 
-    this.drawGoal();
+    this.createCoordinates();
   }
 
   handleHit (hand, goal){
     this.score++
     this.hitSound.play();
     goal.destroy();
-    this.drawGoal();
+    this.createCoordinates();
 }
-  
+
+createCoordinates(){
+  this.x = Phaser.Math.Between(300, 800);
+  this.y = Phaser.Math.Between(700, 1000);
+
+  let distance = Phaser.Math.Distance.Between(x, y, this.previousX, this.previousY);
+  if(distance <= 250){
+    this.x = Phaser.Math.Between(300, 800);
+    this.y = Phaser.Math.Between(700, 1000);
+  }else{
+    this.drawGoal();
+    this.previousX = this.x; 
+    this.previousY = this.y; 
+  }
+}
+ 
+// checking if distance is big enough between the coördinates
+x; 
+y; 
+previousX = 0; 
+previousY = 0;
+
 drawGoal(){
   console.log('drawGoal activated');
-  let x = Phaser.Math.Between(300, 800);
-  let y = Phaser.Math.Between(700, 1000);
-
   const targets = ["hart3", "hart4", "hart5", "hart6"];
   let currentTarget = targets[Math.floor(Math.random()*targets.length)];
   let newTarget; 
   
   switch(currentTarget){
     case "hart3": 
-      newTarget = this.add.sprite(x, y, 'hart3', 0).setScale(0.5);
+      newTarget = this.add.sprite(this.x, this.y, 'hart3', 0).setScale(0.5);
       this.anims.create({
         key: 'beweeg3',
         frames: this.anims.generateFrameNumbers('hart3', { start: 17, end: 18 }),
@@ -189,7 +207,7 @@ drawGoal(){
       newTarget.anims.play('beweeg3');
     break;
     case "hart4": 
-      newTarget = this.add.sprite(x, y, 'hart4', 0).setScale(0.5);
+      newTarget = this.add.sprite(this.x, this.y, 'hart4', 0).setScale(0.5);
       this.anims.create({
         key: 'beweeg4',
         frames: this.anims.generateFrameNumbers('hart4', { start: 17, end: 18 }),
@@ -199,7 +217,7 @@ drawGoal(){
       newTarget.anims.play('beweeg4');
     break;
     case "hart5": 
-      newTarget = this.add.sprite(x, y, 'hart5', 0).setScale(0.5);
+      newTarget = this.add.sprite(this.x, this.y, 'hart5', 0).setScale(0.5);
       this.anims.create({
         key: 'beweeg5',
         frames: this.anims.generateFrameNumbers('hart5', { start: 17, end: 18 }),
@@ -209,7 +227,7 @@ drawGoal(){
       newTarget.anims.play('beweeg5');
     break;
     case "hart6": 
-      newTarget = this.add.sprite(x, y, 'hart6', 0).setScale(0.5);
+      newTarget = this.add.sprite(this.x, this.y, 'hart6', 0).setScale(0.5);
       this.anims.create({
         key: 'beweeg6',
         frames: this.anims.generateFrameNumbers('hart6', { start: 17, end: 18 }),
