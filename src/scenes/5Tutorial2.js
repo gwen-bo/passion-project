@@ -23,7 +23,7 @@ export class Tutorial2Scene extends Phaser.Scene{
 
   // poseNet = undefined; 
   // poses = [];
-  restart = false; 
+  restart; 
   restartNext; 
 
   init = async (data) => {
@@ -48,7 +48,7 @@ export class Tutorial2Scene extends Phaser.Scene{
     };
 
     if(this.restart === true){
-      console.log(this.restart);
+      console.log('restarting');
       // this.scene.restart({ restart: false, webcamObj: this.$webcam, poseNet: this.poseNet})
       this.scene.restart({ restart: false})
     }
@@ -113,10 +113,13 @@ export class Tutorial2Scene extends Phaser.Scene{
 
   footLeft = undefined; 
   footRight = undefined; 
+  posenetplugin;
 
   create(){
+    this.posenetplugin = this.plugins.get('PoseNetPlugin');
+
     let title = this.add.image(0, 0, 'uitlegVoeten');
-    this.aGrid = new AlignGrid({scene: this.scene, rows:40, cols: 11, height: this.cameras.main.worldView.height, width: this.cameras.main.worldView.width})
+    this.aGrid = new AlignGrid({scene: this.scene, rows:40, cols: 11, height: 1710, width: 1030})
     // this.aGrid.showNumbers();
     this.aGrid.placeAtIndex(49, title); // 60
 
@@ -138,7 +141,6 @@ export class Tutorial2Scene extends Phaser.Scene{
     })
   }
   
-
   t = 0; 
   onEvent(){
     this.t++
@@ -149,10 +151,13 @@ export class Tutorial2Scene extends Phaser.Scene{
     }
   }
 
+  fetchPoses = async () => {
+    let poses = await this.posenetplugin.poseEstimation();
+    this.handlePoses(poses);
+  }
+
   update(){
-    // callback function
-    this.posenet.poseEstimation();
-    this.events.on('poses', this.handlePoses, this);
+    this.fetchPoses();
 
     this.keypointsGameOjb.leftKnee.x = this.skeleton.leftKnee.x;
     this.keypointsGameOjb.leftKnee.y = this.skeleton.leftKnee.y;

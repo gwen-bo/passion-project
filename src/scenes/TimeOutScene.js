@@ -19,7 +19,7 @@ export class TimeOutScene extends Phaser.Scene{
 
     create(){
         let timeOutMessage = this.add.sprite(0, 0, 'timeOutScreen', 0);
-        this.aGrid = new AlignGrid({scene: this.scene, rows:25, cols: 11, height: this.cameras.main.worldView.height, width: this.cameras.main.worldView.width})
+        this.aGrid = new AlignGrid({scene: this.scene, rows:25, cols: 11, height: 1710, width: 1030})
         this.aGrid.placeAtIndex(126, timeOutMessage);
         this.anims.create({
           key: 'paused',

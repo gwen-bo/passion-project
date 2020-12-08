@@ -13,6 +13,11 @@ import score11 from '../assets/img/game/meter/11.png'
 import score12 from '../assets/img/game/meter/12.png'
 import score13 from '../assets/img/game/meter/13.png'
 
+import hart3 from '../assets/img/game/sprites/hart3.png'
+import hart4 from '../assets/img/game/sprites/hart4.png'
+import hart5 from '../assets/img/game/sprites/hart5.png'
+import hart6 from '../assets/img/game/sprites/hart6.png'
+
 import handR from '../assets/img/keypoints/handR.png'
 import handL from '../assets/img/keypoints/handL.png'
 import voetR from '../assets/img/keypoints/voetR.png'
@@ -35,7 +40,7 @@ export class GamePlayScene extends Phaser.Scene{
   // poses = [];
   paused = false; 
   score; 
-  restart = false; 
+  restart; 
   restartNext; 
 
   init = async (data) => {
@@ -54,32 +59,13 @@ export class GamePlayScene extends Phaser.Scene{
     this.restartNext = data.restart;
 
     if(this.restart === true){
-      console.log(this.restart);
+      console.log('restarting');
       // this.scene.restart({ restart: false, webcamObj: this.$webcam, poseNet: this.poseNet})
       this.scene.restart({ restart: false})
     }
 
     // this.poseEstimation();
   }
-
-  // poseEstimation = async () => {
-  //   // console.log('poseEstimation');
-  //   const pose = await this.poseNet.estimateSinglePose(this.$webcam, {
-  //       flipHorizontal: this.flipPoseHorizontal,
-  //   });
-    
-  //   this.poses = this.poses.concat(pose);
-  //   this.poses.forEach(({score, keypoints}) => {
-  //     if(score > 0.4){
-  //       if(this.paused === true){
-  //         this.paused = false; 
-  //       }
-  //       this.drawKeypoints(keypoints);
-  //     } else if (score <= 0.05 ){
-  //       this.paused = true; 
-  //     }
-  //   });
-  // }
 
   // eventueel ook op andere javascript file 
   drawKeypoints = (keypoints, scale = 1) => {
@@ -109,8 +95,10 @@ export class GamePlayScene extends Phaser.Scene{
     this.load.image('voetL', voetL)
 
     this.load.audio('hit', hit);
-
-    // this.load.multiatlas('batterij-tut2', './assets/spritesheets/batterij/blauw/blauw.json', './assets/spritesheets/batterij/blauw/batterij');  
+    this.load.spritesheet('hart3', hart3, { frameWidth: 337, frameHeight: 409 });
+    this.load.spritesheet('hart4', hart4, { frameWidth: 337, frameHeight: 409 });
+    this.load.spritesheet('hart5', hart5, { frameWidth: 337, frameHeight: 409 });
+    this.load.spritesheet('hart6', hart6, { frameWidth: 337, frameHeight: 409 });
 
     this.load.image('score-0', score0);
     this.load.image('score-1', score1);
@@ -126,7 +114,6 @@ export class GamePlayScene extends Phaser.Scene{
     this.load.image('score-11', score11);
     this.load.image('score-12', score12);
     this.load.image('score-13', score13);
-
   }
 
   keypointsGameOjb = {
@@ -146,8 +133,9 @@ export class GamePlayScene extends Phaser.Scene{
   scoreMeter; 
   hitSound;
   aGrid; 
+  posenetplugin; 
   create(){
-    this.score = 0;
+    this.posenetplugin = this.plugins.get('PoseNetPlugin');
 
     this.keypointsGameOjb.leftWrist = this.add.image(this.skeleton.leftWrist.x, this.skeleton.leftWrist.y, 'handL').setScale(0.5);
     this.handLeft = this.physics.add.existing(this.keypointsGameOjb.leftWrist);
@@ -155,47 +143,84 @@ export class GamePlayScene extends Phaser.Scene{
     this.handRight = this.physics.add.existing(this.keypointsGameOjb.rightWrist);
     this.keypointsGameOjb.leftKnee = this.add.image(this.skeleton.leftKnee.x, this.skeleton.leftKnee.y, 'voetL').setScale(0.5);
     this.kneeLeft = this.physics.add.existing(this.keypointsGameOjb.leftKnee);
-    this.keypointsGameOjb.rightKnee = this.add.image(this.skeleton.rightKnee.x, this.skeleton.rightKnee.y, 'voetL').setScale(0.5);
+    this.keypointsGameOjb.rightKnee = this.add.image(this.skeleton.rightKnee.x, this.skeleton.rightKnee.y, 'voetR').setScale(0.5);
     this.kneeRight = this.physics.add.existing(this.keypointsGameOjb.rightKnee);
 
+    this.score = 0;
     this.scoreMeter = this.add.image(0, 0, 'score-0');
-    console.log(this.cameras.main.worldView);
-    this.aGrid = new AlignGrid({scene: this.scene, rows:40, cols: 11, height: this.cameras.main.worldView.height, width: this.cameras.main.worldView.width})
+    this.aGrid = new AlignGrid({scene: this.scene, rows:40, cols: 11, height: 1710, width: 1030})
     // this.aGrid.showNumbers();
     this.aGrid.placeAtIndex(49, this.scoreMeter); // 38 of 60
 
-    this.targetGroup = this.physics.add.group([this.handLeft, this.handRight, this.kneeLeft, this.kneeRight]); 
-    this.keypointGroup = this.physics.add.group(); 
+    this.targetGroup = this.physics.add.group(); 
+    this.keypointGroup = this.physics.add.group([this.handLeft, this.handRight, this.kneeLeft, this.kneeRight]); 
 
     this.hitSound = this.sound.add('hit', {loop: false});
     this.physics.add.overlap(this.keypointGroup, this.targetGroup, this.handleHit, null, this);
-    // this.physics.add.overlap(this.keypointGroup, this.targetGroup, this.handleHit, null, this);
-    // this.physics.add.overlap(this.keypointGroup, this.targetGroup, this.handleHit, null, this);
-    // this.physics.add.overlap(this.keypointGroup, this.targetGroup, this.handleHit, null, this);
 
     this.drawGoal();
   }
 
   handleHit (hand, goal){
-    // animeren on hit
-      // var animation = explosion.animations.add('boom', [0,1,2,3], 60, false);
-      // animation.killOnComplete = true;
-
-      console.log('hit');
-      this.score++
-      this.hitSound.play();
-      goal.destroy();
-      this.drawGoal();
-  }
+    this.score++
+    this.hitSound.play();
+    goal.destroy();
+    this.drawGoal();
+}
   
-  drawGoal(){
-    console.log('drawGoal activated');
-    let x = Phaser.Math.Between(300, 800);
-    let y = Phaser.Math.Between(200, 1200);
+drawGoal(){
+  console.log('drawGoal activated');
+  let x = Phaser.Math.Between(300, 800);
+  let y = Phaser.Math.Between(700, 1000);
 
-    let newTarget = this.add.rectangle(x, y, 100, 100, "red");
-    this.targetGroup.add(newTarget, false);
-  }
+  const targets = ["hart3", "hart4", "hart5", "hart6"];
+  let currentTarget = targets[Math.floor(Math.random()*targets.length)];
+  let newTarget; 
+  
+  switch(currentTarget){
+    case "hart3": 
+      newTarget = this.add.sprite(x, y, 'hart3', 0).setScale(0.5);
+      this.anims.create({
+        key: 'beweeg3',
+        frames: this.anims.generateFrameNumbers('hart3', { start: 17, end: 18 }),
+        frameRate: 5,
+        repeat: -1
+      });
+      newTarget.anims.play('beweeg3');
+    break;
+    case "hart4": 
+      newTarget = this.add.sprite(x, y, 'hart4', 0).setScale(0.5);
+      this.anims.create({
+        key: 'beweeg4',
+        frames: this.anims.generateFrameNumbers('hart4', { start: 17, end: 18 }),
+        frameRate: 5,
+        repeat: -1
+      });
+      newTarget.anims.play('beweeg4');
+    break;
+    case "hart5": 
+      newTarget = this.add.sprite(x, y, 'hart5', 0).setScale(0.5);
+      this.anims.create({
+        key: 'beweeg5',
+        frames: this.anims.generateFrameNumbers('hart5', { start: 17, end: 18 }),
+        frameRate: 5,
+        repeat: -1
+      });
+      newTarget.anims.play('beweeg5');
+    break;
+    case "hart6": 
+      newTarget = this.add.sprite(x, y, 'hart6', 0).setScale(0.5);
+      this.anims.create({
+        key: 'beweeg6',
+        frames: this.anims.generateFrameNumbers('hart6', { start: 17, end: 18 }),
+        frameRate: 5,
+        repeat: -1
+      });
+      newTarget.anims.play('beweeg6');
+    break;
+}
+  this.targetGroup.add(newTarget, false);
+}
 
   pausedTimer(){
     this.pausedTime++;
@@ -212,16 +237,20 @@ export class GamePlayScene extends Phaser.Scene{
       if(score >= 0.4){
         this.drawKeypoints(keypoints);
         return; 
-      }else {
+      }else if (score <= 0.02){
+        console.log('pausing, because bad score', score);
         this.paused = true; 
       }
     })
   }
 
+  fetchPoses = async () => {
+    let poses = await this.posenetplugin.poseEstimation();
+    this.handlePoses(poses);
+  }
+
   update(){
-    // callback function
-    this.posenet.poseEstimation();
-    this.events.on('poses', this.handlePoses, this);
+    this.fetchPoses();
 
     this.keypointsGameOjb.leftWrist.x = this.skeleton.leftWrist.x;
     this.keypointsGameOjb.leftWrist.y = this.skeleton.leftWrist.y;
@@ -239,67 +268,12 @@ export class GamePlayScene extends Phaser.Scene{
       this.scene.launch('timeOut', {currentScene: 'gameplay'});  
       this.pausedTimer();
     }else if(this.paused === false){
-      this.scene.pause('timeOut');
+      this.scene.stop('timeOut');
     }
 
-    switch(this.score){
-
-      case 1: 
-        this.scoreMeter.setTexture('score-1');
-      break;
-
-      case 2: 
-        this.scoreMeter.setTexture('score-2');
-      break;
-
-      case 3: 
-        this.scoreMeter.setTexture('score-3');
-      break;
-
-      case 4: 
-        this.scoreMeter.setTexture('score-4');
-      break;
-
-      case 5: 
-        this.scoreMeter.setTexture('score-5');
-      break;
-
-      case 6: 
-        this.scoreMeter.setTexture('score-6');
-      break;
-
-      case 7: 
-        this.scoreMeter.setTexture('score-7');
-      break;
-
-      case 8: 
-        this.scoreMeter.setTexture('score-8');
-      break;
-
-      case 9: 
-        this.scoreMeter.setTexture('score-9');
-      break;
-
-      case 10: 
-        console.log('score hit!');
-        this.scoreMeter.setTexture('score-10');
-      break;
-
-      case 11: 
-        console.log('score hit!');
-        this.scoreMeter.setTexture('score-11');
-      break;
-
-      case 12: 
-        console.log('score hit!');
-        this.scoreMeter.setTexture('score-12');
-      break;
-
-      case 13: 
-        console.log('score hit!');
-        this.scoreMeter.setTexture('score-13');
-        this.scene.start('ending');   
-      break;
+    this.scoreMeter.setTexture(`score-${this.score}`);
+    if(this.score >= 13){
+      this.scene.start('ending', { webcamObj: this.$webcam, poseNet: this.poseNet});    
 
     }
 

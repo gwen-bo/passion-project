@@ -14,7 +14,7 @@ export class GameBegin extends Phaser.Scene{
 
   // poseNet = undefined; 
   // poses = [];
-  restart = false; 
+  restart; 
   restartNext; 
 
   init = async (data) => {
@@ -39,7 +39,7 @@ export class GameBegin extends Phaser.Scene{
     };
 
     if(this.restart === true){
-      console.log(this.restart);
+      console.log('restarting');
       // this.scene.restart({ restart: false, webcamObj: this.$webcam, poseNet: this.poseNet})
       this.scene.restart({ restart: false})
     }
@@ -106,7 +106,10 @@ export class GameBegin extends Phaser.Scene{
   handRight = undefined; 
   kneeLeft = undefined; 
   kneeRight = undefined; 
+  posenetplugin;
   create(){
+    this.posenetplugin = this.plugins.get('PoseNetPlugin');
+
     this.keypointsGameOjb.leftWrist = this.add.image(this.skeleton.leftWrist.x, this.skeleton.leftWrist.y, 'handL').setScale(0.5);
     this.handLeft = this.physics.add.existing(this.keypointsGameOjb.leftWrist);
     this.keypointsGameOjb.rightWrist = this.add.image(this.skeleton.rightWrist.x,this.skeleton.rightWrist.y, 'handR').setScale(0.5);
@@ -138,12 +141,14 @@ export class GameBegin extends Phaser.Scene{
       }
     })
   }
-  
+
+  fetchPoses = async () => {
+    let poses = await this.posenetplugin.poseEstimation();
+    this.handlePoses(poses);
+  }
 
   update(){
-    // callback function
-    this.posenet.poseEstimation();
-    this.events.on('poses', this.handlePoses, this);
+    this.fetchPoses();
 
     this.keypointsGameOjb.leftWrist.x = this.skeleton.leftWrist.x;
     this.keypointsGameOjb.leftWrist.y = this.skeleton.leftWrist.y;

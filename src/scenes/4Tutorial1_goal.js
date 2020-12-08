@@ -1,6 +1,8 @@
 import handR from '../assets/img/keypoints/handR.png'
 import handL from '../assets/img/keypoints/handL.png'
 
+import hart1 from '../assets/img/game/sprites/hart1.png'
+
 export class Tutorial1_goal extends Phaser.Scene{
   constructor(config){
     super(config);
@@ -20,7 +22,7 @@ export class Tutorial1_goal extends Phaser.Scene{
 
   // poseNet = undefined; 
   // poses = [];
-  restart = false; 
+  restart; 
   restartNext; 
 
   init = async (data) => {
@@ -43,7 +45,7 @@ export class Tutorial1_goal extends Phaser.Scene{
     };
 
     if(this.restart === true){
-      console.log(this.restart);
+      console.log('restarting');
       // this.scene.restart({ restart: false, webcamObj: this.$webcam, poseNet: this.poseNet})
       this.scene.restart({ restart: false})
     }
@@ -92,7 +94,7 @@ export class Tutorial1_goal extends Phaser.Scene{
 
 
   preload(){
-    // this.load.multiatlas('batterij', batterijJson, '../assets/spritesheets/batterij/blauw/batterij');  
+    this.load.spritesheet('hart1', hart1, { frameWidth: 337, frameHeight: 409 });
 
     this.load.image('handR', handR);
     this.load.image('handL', handL);
@@ -109,8 +111,10 @@ export class Tutorial1_goal extends Phaser.Scene{
 
   handLeft = undefined; 
   handRight = undefined; 
-
+  posenetplugin; 
   create(){
+    this.posenetplugin = this.plugins.get('PoseNetPlugin');
+
     this.keypointsGameOjb.leftWrist = this.add.image(this.skeleton.leftWrist.x, this.skeleton.leftWrist.y, 'handL').setScale(0.5);
     this.keypointsGameOjb.rightWrist = this.add.image(this.skeleton.rightWrist.x,this.skeleton.rightWrist.y, 'handR').setScale(0.5);
 
@@ -122,18 +126,35 @@ export class Tutorial1_goal extends Phaser.Scene{
     this.physics.add.overlap(this.handLeft, this.targetGroup, this.handleHit, null, this);
     this.physics.add.overlap(this.handRight, this.targetGroup, this.handleHit, null, this);
 
-    // let batterijObj = this.add.sprite(250,200, 'batterij', 'blauw-0.png');
-    // batterijObj.setScale(0.2, 0.2);
+    this.timedEvent = this.time.addEvent({ delay: 1000, callback: this.onEvent, callbackScope: this, repeat: 10 });    
+  };
 
-    // var frameNames = this.anims.generateFrameNames('batterij', {
-    //   start: 0, end: 58,
-    //   suffix: '.png', zeroPad: 0,
-    // });
-    // this.anims.create({ key: 'walk', frames: frameNames, frameRate: 25, repeat: -1 });
-    // batterijObj.anims.play('walk');
+  t = 0; 
+  score = 0; 
 
-    let batterijObj = this.add.rectangle(250, 300, 100, 100, "red");
-    this.targetGroup.add(batterijObj, false);
+  onEvent(){
+    this.t++
+    if(this.t === 2){
+      // console.log('time event', this.t);
+      let target1 = this.add.sprite(250, 300, 'hart1', 17).setScale(0.5);
+      // let target2 = this.add.sprite(250, 300, 'hart1', 17).setScale(0.5);
+
+      this.anims.create({
+        key: 'beweeg',
+        frames: this.anims.generateFrameNumbers('hart1', { start: 17, end: 18 }),
+        frameRate: 3,
+        repeat: -1
+      });
+      this.anims.create({
+        key: 'hit',
+        frames: this.anims.generateFrameNumbers('hart1', { start: 0, end: 16 }),
+        frameRate: 3,
+        repeat: 0
+      });
+      target1.anims.play('beweeg');
+      this.targetGroup.add(target1, false);
+      // this.targetGroup.add(target2, false);  
+    }
   }
 
     // PLUGIN
@@ -148,15 +169,26 @@ export class Tutorial1_goal extends Phaser.Scene{
 
     // welke functie er opgeropen wordt bij de overlap tussen de speler 
     handleHit (hand, goal){
-      console.log('hit')
+      this.score++
+      console.log('hit', goal);
+      goal.anims.play('hit');
       goal.destroy();
-      this.scene.start('tutorial2', { restart: this.restartNext, webcamObj: this.$webcam, poseNet: this.poseNet, skeletonObj: this.skeleton});    
+
+      // goal.on('animationcomplete', function () {
+      // }, this);
+
+      // if(this.score >= 2){
+        this.scene.start('tutorial2', {webcamObj: this.$webcam, poseNet: this.poseNet, skeletonObj: this.skeleton});    
+      // }
+  }
+
+  fetchPoses = async () => {
+    let poses = await this.posenetplugin.poseEstimation();
+    this.handlePoses(poses);
   }
   
   update(){
-    // PROBLEEM MET PLUGIN??
-    this.posenet.poseEstimation();
-    this.events.on('poses', this.handlePoses, this);
+    this.fetchPoses();
 
     this.keypointsGameOjb.leftWrist.x = this.skeleton.leftWrist.x;
     this.keypointsGameOjb.leftWrist.y = this.skeleton.leftWrist.y;

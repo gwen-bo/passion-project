@@ -24,7 +24,7 @@ export class Tutorial1Scene extends Phaser.Scene{
 
   // poseNet = undefined; 
   // poses = [];
-  restart = false; 
+  restart; 
   restartNext; 
 
   init = async (data) => {
@@ -47,7 +47,7 @@ export class Tutorial1Scene extends Phaser.Scene{
     };
 
     if(this.restart === true){
-      console.log(this.restart);
+      console.log('restarting');
       // this.scene.restart({ restart: false, webcamObj: this.$webcam, poseNet: this.poseNet});
       this.scene.restart({ restart: false})
 
@@ -114,10 +114,13 @@ export class Tutorial1Scene extends Phaser.Scene{
 
   handLeft = undefined; 
   handRight = undefined; 
+  posenetplugin;
 
   create(){
+    this.posenetplugin = this.plugins.get('PoseNetPlugin');
+
     let title = this.add.image(0, 0, 'uitlegHanden');
-    this.aGrid = new AlignGrid({scene: this.scene, rows:40, cols: 11, height: this.cameras.main.worldView.height, width: this.cameras.main.worldView.width})
+    this.aGrid = new AlignGrid({scene: this.scene, rows:40, cols: 11, height: 1710, width: 1030})
     // this.aGrid.showNumbers();
     this.aGrid.placeAtIndex(49, title); // 60
 
@@ -150,15 +153,14 @@ export class Tutorial1Scene extends Phaser.Scene{
     })
   }
 
+  fetchPoses = async () => {
+    let poses = await this.posenetplugin.poseEstimation();
+    this.handlePoses(poses);
+  }
+
   update(){
-    // callback function
-    // this.poseEstimation();
-
-    // PROBLEEM MET PLUGIN??
-    this.posenet.poseEstimation();
-    this.events.on('poses', this.handlePoses, this);
-
-
+    this.fetchPoses();
+   
     this.keypointsGameOjb.leftWrist.x = this.skeleton.leftWrist.x;
     this.keypointsGameOjb.leftWrist.y = this.skeleton.leftWrist.y;
 

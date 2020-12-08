@@ -1,5 +1,3 @@
-import PoseNetPlugin from "../index";
-
 export class StartUp extends Phaser.Scene{
   constructor(config){
     super(config);
@@ -51,11 +49,22 @@ export class StartUp extends Phaser.Scene{
     }
   }
 
+  posenetplugin; 
   create(){
+    this.posenetplugin = this.plugins.get('PoseNetPlugin');
     this.timedEvent = this.time.addEvent({ delay: 1000, callback: this.onEvent, callbackScope: this, repeat: 10 });    
   }
 
+  fetchPoses = async () => {
+    let poses = await this.posenetplugin.poseEstimation();
+    console.log(poses)
+  }
+
   update(){
+    this.fetchPoses();
+    
+    // this.events.on('poses', this.handlePoses, this);
+
   }
 
 }

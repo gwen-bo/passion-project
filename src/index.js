@@ -3,7 +3,7 @@ import Phaser from "phaser";
 import css from './style.css';
 import PoseNetPlugin from './js/plugins/PoseNetPlugin.js'
 
-import {StartUp} from './scenes/0StartUp.js';
+// import {StartUp} from './scenes/0StartUp.js';
 import {StartScene} from './scenes/1StartScene.js';
 import {WelcomeScene} from './scenes/2WelcomeScene.js';
 import {Tutorial1Scene} from './scenes/3Tutorial1.js'; // handen tutorial
@@ -22,10 +22,8 @@ const config = {
   height: 1710,
   backgroundColor: 0xFFE5D2,
   plugins: {
-    scene: [
-      { 
-        key: 'PoseNetPlugin', plugin: PoseNetPlugin, mapping: 'posenet'
-    }
+    global: [
+        { key: 'PoseNetPlugin', plugin: PoseNetPlugin, start: true}
     ]
   },
   physics: {
@@ -39,7 +37,7 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-game.scene.add(`startup`, StartUp, false);
+// game.scene.add(`startup`, StartUp, false);
 game.scene.add(`start`, StartScene, false);
 game.scene.add(`welcome`, WelcomeScene, false);
 game.scene.add(`tutorial1`, Tutorial1Scene, false);
@@ -51,4 +49,4 @@ game.scene.add(`gameplay`, GamePlayScene, false);
 game.scene.add(`ending`, EndingScene, false);
 game.scene.add(`timeOut`, TimeOutScene, false);
 
-game.scene.start(`startup`);
+game.scene.start(`start`, {restart: false});

@@ -1,4 +1,4 @@
-import endingscreen from '../assets/img/einde/einde.png'
+import endingscreen from '../assets/img/einde/einde_sprite.png'
 
 import AlignGrid from '../js/utilities/alignGrid'
 
@@ -13,19 +13,19 @@ export class EndingScene extends Phaser.Scene{
   }
 
   preload(){
-    this.load.spritesheet('endingscreen', endingscreen, { frameWidth: 737, frameHeight: 576 });
+    this.load.spritesheet('endingscreen', endingscreen, { frameWidth: 800, frameHeight: 598 });
   }
 
   create(){
     this.timedEvent = this.time.addEvent({ delay: 1000, callback: this.onEvent, callbackScope: this, repeat: 10 });    
 
     let ending = this.add.sprite(0, 0, 'endingscreen', 0);
-    this.aGrid = new AlignGrid({scene: this.scene, rows:25, cols: 11, height: this.cameras.main.worldView.height, width: this.cameras.main.worldView.width})
+    this.aGrid = new AlignGrid({scene: this.scene, rows:25, cols: 11, height: 1710, width: 1030})
     this.aGrid.placeAtIndex(126, ending);
     this.anims.create({
       key: 'ending',
       frames: this.anims.generateFrameNumbers('endingscreen', { start: 0, end: 1 }),
-      frameRate: 3,
+      frameRate: 5,
       repeat: -1
     });
     ending.anims.play('ending');
@@ -35,7 +35,7 @@ export class EndingScene extends Phaser.Scene{
   onEvent(){
     this.t++
     if(this.t >= 10){
-      this.scene.start('start', { restart: true, webcamObj: this.$webcam, poseNet: this.poseNet});    
+      this.scene.start('start', {restart: true});    
     }
   }
   

@@ -1,5 +1,5 @@
 // import PoseNetPlugin from "../index";
-import stand_by from '../assets/img/start/stand_by.png'
+import eye from '../assets/img/start/eye.png'
 import AlignGrid from '../js/utilities/alignGrid'
 
 export class StartScene extends Phaser.Scene{
@@ -8,13 +8,13 @@ export class StartScene extends Phaser.Scene{
   }
 
   // om de input van de webcam om te draaien
-  flipPoseHorizontal = true;
+  // flipPoseHorizontal = true;
 
   // game settings
   // poseNet = undefined; 
   // poses = [];
   state; 
-  restart = false; 
+  restart; 
   restartNext; 
 
   t = 0; 
@@ -30,43 +30,43 @@ export class StartScene extends Phaser.Scene{
     // this.poseNet = data.poseNet;
     this.restart = data.restart;
     this.restartNext = data.restart;
-
+      console.log(this.restart);
     if(this.restart === true){
+      console.log('restarting');
       this.scene.restart({ restart: false})
     }
     // this.$webcam.width = window.innerWidth;
     // this.$webcam.height = window.innerHeight;
   }
 
-  // poseEstimation = async () => {
-  //   const pose = await this.poseNet.estimateSinglePose(this.$webcam, {
-  //       flipHorizontal: this.flipPoseHorizontal,
-  //   });
-  //   this.poses = this.poses.concat(pose);
-  //   this.poses.forEach(({score, keypoints}) => {
-  //     if(score > 0.4){
-  //       if(this.state === "STAND_BY"){
-  //         this.state = "PRESENT";
-  //       }
-  //       return; 
-  //     }else if (score <= 0.05 ){
-  //       this.state = "STAND_BY";
-  //     }
-  //   });
-  // }
 
-
-  eye; 
+  eyeObj; 
+  posenetplugin;
   preload(){
-    this.load.image('stand_by', stand_by);
+    this.load.spritesheet('eye', eye, { frameWidth: 800, frameHeight: 598 });
   }
+  
   create(){
     // console.log(`StartScene CREATE`);
+    this.posenetplugin = this.plugins.get('PoseNetPlugin');
     this.state = "STAND_BY";
-    this.eye = this.add.image(0, 0, 'stand_by');
-    this.aGrid = new AlignGrid({scene: this.scene, rows:25, cols: 11, height: this.cameras.main.worldView.height, width: this.cameras.main.worldView.width})
+    this.eyeObj = this.add.sprite(0, 0, 'eye', 0);
+    this.aGrid = new AlignGrid({scene: this.scene, rows:25, cols: 11, height: 1710, width: 1030})
     // this.aGrid.showNumbers();
-    this.aGrid.placeAtIndex(126, this.eye);
+    this.anims.create({
+      key: 'opening',
+      frames: this.anims.generateFrameNumbers('eye', { start: 0, end: 7 }),
+      frameRate: 15,
+      repeat: 0,
+    });
+    this.anims.create({
+      key: 'closed',
+      frames: this.anims.generateFrameNumbers('eye', { start: 0, end: 0 }),
+      frameRate: 3,
+      repeat: -1
+    }); 
+    this.eyeObj.anims.play('closed');
+    this.aGrid.placeAtIndex(126, this.eyeObj);
   }
 
   onEvent(){
@@ -74,6 +74,7 @@ export class StartScene extends Phaser.Scene{
     if(this.t === 3){
       console.log('time event', this.t);
       this.state = "READY";
+      // this.scene.start('welcome', {restart: this.restartNext});    
      }
   }
 
@@ -82,10 +83,14 @@ export class StartScene extends Phaser.Scene{
 
   // PLUGIN
   handlePoses(poses){
-
-    poses.forEach(({score, keypoints}) => {
+    if(poses === false){
+        return; 
+    }
+    poses.forEach(({score}) => {
       if(score >= 0.4){
+        if(this.state === "STAND_BY"){
           this.switchState("PRESENT");
+        }
         return; 
       }else if (score <= 0.05 ){
         this.switchState("STAND_BY");
@@ -93,31 +98,33 @@ export class StartScene extends Phaser.Scene{
     })
   }
 
+  fetchPoses = async () => {
+    let poses = await this.posenetplugin.poseEstimation();
+    this.handlePoses(poses);
+  }
+
   switchState(value){
     this.state = value; 
   }
-
+ 
   update(){
     console.log(this.state, 'timer:', this.timerActivated);
-
-    // PROBLEEM MET PLUGIN??
-    this.posenet.poseEstimation();
-    this.events.on('poses', this.handlePoses, this);
+    this.fetchPoses();
 
     switch(this.state){
       case "PRESENT": 
-        // this.changeSourceActive();
-
-        this.timedEvent = this.time.addEvent({ delay: 1000, callback: this.onEvent, callbackScope: this, loop: true });    
+        this.eyeObj.anims.play('opening');
         this.state = "VERIFYING";
+      break;
+      case "VERIFYING":
+        this.timedEvent = this.time.addEvent({ delay: 1000, callback: this.onEvent, callbackScope: this, loop: true });    
         this.timerActivated = true;
       break;
-
       case "READY": 
         this.scene.start('welcome', {restart: this.restartNext});    
       break; 
-
       case "STAND_BY":     
+        this.eyeObj.anims.play('closed');
         if(this.timerActivated === true){
           this.timerActivated = false; 
           this.timedEvent.remove();
