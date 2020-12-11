@@ -7,38 +7,21 @@ export class StartScene extends Phaser.Scene{
     super(config);
   }
 
-  // om de input van de webcam om te draaien
-  // flipPoseHorizontal = true;
-
-  // game settings
-  // poseNet = undefined; 
-  // poses = [];
   state; 
   restart; 
   restartNext; 
 
-  t = 0; 
-
-  // init = (data) => {
     init = (data) => {
 
     console.log(`StartScene INIT`);
-    this.state = "STAND_BY";
-    this.t = 0; 
 
-    // this.$webcam = data.webcamObj;
-    // this.poseNet = data.poseNet;
     this.restart = data.restart;
     this.restartNext = data.restart;
-      console.log(this.restart);
     if(this.restart === true){
-      console.log('restarting');
       this.scene.restart({ restart: false})
     }
-    // this.$webcam.width = window.innerWidth;
-    // this.$webcam.height = window.innerHeight;
-  }
 
+  }
 
   eyeObj; 
   posenetplugin;
@@ -47,7 +30,6 @@ export class StartScene extends Phaser.Scene{
   }
   
   create(){
-    // console.log(`StartScene CREATE`);
     this.posenetplugin = this.plugins.get('PoseNetPlugin');
     this.state = "STAND_BY";
     this.eyeObj = this.add.sprite(0, 0, 'eye', 0);
@@ -69,18 +51,7 @@ export class StartScene extends Phaser.Scene{
     this.aGrid.placeAtIndex(126, this.eyeObj);
   }
 
-  onEvent(){
-    this.t++
-    if(this.t === 3){
-      console.log('time event', this.t);
-      this.state = "READY";
-      // this.scene.start('welcome', {restart: this.restartNext});    
-     }
-  }
-
-  timedEvent = undefined; 
-  timerActivated = false; 
-
+  activeScore = 0; 
   // PLUGIN
   handlePoses(poses){
     if(poses === false){
@@ -88,12 +59,10 @@ export class StartScene extends Phaser.Scene{
     }
     poses.forEach(({score}) => {
       if(score >= 0.4){
-        if(this.state === "STAND_BY"){
-          this.switchState("PRESENT");
-        }
+        this.activeScore++
         return; 
       }else if (score <= 0.05 ){
-        this.switchState("STAND_BY");
+        this.activeScore === 0;
       }
     })
   }
@@ -102,36 +71,21 @@ export class StartScene extends Phaser.Scene{
     let poses = await this.posenetplugin.poseEstimation();
     this.handlePoses(poses);
   }
-
-  switchState(value){
-    this.state = value; 
-  }
  
   update(){
-    console.log(this.state, 'timer:', this.timerActivated);
+    console.log(this.activeScore);
     this.fetchPoses();
 
-    switch(this.state){
-      case "PRESENT": 
-        this.eyeObj.anims.play('opening');
-        this.state = "VERIFYING";
-      break;
-      case "VERIFYING":
-        this.timedEvent = this.time.addEvent({ delay: 1000, callback: this.onEvent, callbackScope: this, loop: true });    
-        this.timerActivated = true;
-      break;
-      case "READY": 
-        this.scene.start('welcome', {restart: this.restartNext});    
-      break; 
-      case "STAND_BY":     
-        this.eyeObj.anims.play('closed');
-        if(this.timerActivated === true){
-          this.timerActivated = false; 
-          this.timedEvent.remove();
-        }
-      break; 
+    if(this.activeScore === 0){
+      this.eyeObj.anims.play('closed');
+    }else if(this.activeScore <= 100 && this.activeScore >= 50){
+      console.log('eyes should open')
+      this.eyeObj.anims.play('opening');
+    }else if(this.activeScore >= 800){
+      this.scene.start('tutorial1', {restart: this.restartNext});    
+    }else {
+      return; 
     }
-
 
   }
 

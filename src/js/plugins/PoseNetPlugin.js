@@ -8,29 +8,36 @@ class PoseNetPlugin extends Phaser.Plugins.BasePlugin {
     poseNet;
     poses;
     $webcam; 
+    videostream; 
     loaded = false; 
 
     init = async () => {
         console.log('PoseNetPlugin has started');
-        // let eventEmitter = this.game.systems.events;
-        // this.events = new Phaser.Events.EventEmitter();
-        // console.log(this.events);
         this.$webcam = document.querySelector('#webcam');
-        // let poseNet; 
+        this.$webcamFeed = document.querySelector('#webcam-feed');
+
         this.poses = [];
         this.$webcam.width = window.innerWidth;
         this.$webcam.height = window.innerHeight;
 
         this.poseNet = await posenet.load();
-        const videostream = await navigator.mediaDevices.getUserMedia({ video: true });
-        this.$webcam.srcObject = videostream;
-        if (!this.$webcam.captureStream) {
-            this.$webcam.captureStream = () => videostream;
-        };
+        // const videostream = await navigator.mediaDevices.getUserMedia({ video: true });
+        try {
+            this.videostream = await navigator.mediaDevices.getUserMedia({ video: { width: 1080, height: 1920 } });
+            if (!this.$webcam.captureStream) {
+                this.$webcam.captureStream = () => this.videostream;
+            };
+            this.$webcam.srcObject = this.videostream;
+          } catch(err) {
+            /* handle the error */
+            console.log('Error: videostream failed');
+          }
+
 
         this.$webcam.addEventListener('loadeddata', () => {
             console.log('webcam loaded');
             this.loaded = true; 
+            this.$webcamFeed.srcObject = this.videostream;
         });
     }
 

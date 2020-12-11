@@ -7,7 +7,7 @@ Ik heb ervoor gekozen om mijn project uit te werken voor het JEF Festival. Hier 
 ## :point_right: core project statement
 Voor de uitwerking zal ik voornamelijk gebruik van een pose estimation/tracking technology (PoseNet) als core technology om de interactiviteit en beweging te stimuleren. Dit wordt gebruikt om de bewegingen van de kinderen te analyseren en de installatie aan te sturen, afhankelijk van de verdere uitwerking zou webGL gebruikt kunnen worden om de visuele aspecten van de installatie te voorzien. Ze zullen a.d.h.v. gamification enkele ‘doelen’ moeten behalen door allerlei verschillende posities aan te nemen. 
 
-Het thema ‘ondersteboven’ zal vooral terugkomen in de opstelling van de installatie. 
+Het thema ‘ondersteboven’ zal vooral terugkomen in het thema van het spel en de opstelling van de installatie. 
 
 De onderzoeksvraag komt dus neer op: hoe kan ik een pose estimation/tracking technology gebruiken om een leerrijke en interactieve ervaring aan te bieden aan de jongste bezoekers van het JEF festival? 
 

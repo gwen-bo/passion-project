@@ -5,39 +5,26 @@ import uitlegHanden from '../assets/img/tutorial/Handen-tut.png'
 
 import AlignGrid from '../js/utilities/alignGrid'
 
+import hart1 from '../assets/img/game/sprites/hart1.png'
+
+import taDa from '../assets/audio/welcome.mp3'
+import uitlegAudio from '../assets/audio/Dit-spel-speel-je-met-je-handen-en-voeten.mp3'
+import probeerHartje from '../assets/audio/Probeer-maar-Hartje.mp3'
+import Super from '../assets/audio/Super.mp3'
+
+
 export class Tutorial1Scene extends Phaser.Scene{
   constructor(config){
     super(config);
   }
 
-  // om de input van de webcam om te draaien
-  // flipPoseHorizontal = true;
-
-  // videoHeight = window.innerHeight;
-  // videoWidth = window.innerWidth;
-  // beginHeight = 300; 
-  // beginWidth = 600; 
-  // endHeight = window.innerHeight - 300;
-  // endWidth = window.innerWidth - 600;
-  // margeWidth =  this.endWidth - this.beginWidth; 
-  // margeHeight = this.endHeight - this.beginHeight; 
-
-  // poseNet = undefined; 
-  // poses = [];
   restart; 
   restartNext; 
 
   init = async (data) => {
-    // console.log(data);
-    // this.$webcam = data.webcamObj;
-    // this.poseNet = data.poseNet;
-    this.t = 0; 
 
     console.log(`TutorialScene-1 INIT`);
-
-    // this.$webcam.width = window.innerWidth;
-    // this.$webcam.height = window.innerHeight;
-
+    this.countdown = 0
     this.restart = data.restart;
     this.restartNext = data.restart;
 
@@ -48,28 +35,10 @@ export class Tutorial1Scene extends Phaser.Scene{
 
     if(this.restart === true){
       console.log('restarting');
-      // this.scene.restart({ restart: false, webcamObj: this.$webcam, poseNet: this.poseNet});
       this.scene.restart({ restart: false})
 
     }
-
-    // this.poseEstimation();
   }
-
-  // poseEstimation = async () => {
-  //   // console.log('pose estimation - tut1 scene');
-  //   const pose = await this.poseNet.estimateSinglePose(this.$webcam, {
-  //       flipHorizontal: this.flipPoseHorizontal,
-  //   });
-    
-  //   this.poses = this.poses.concat(pose);
-  //   this.poses.forEach(({score, keypoints}) => {
-  //     // console.log('pose is being detected', score)
-  //     if(score > 0.4){
-  //       this.drawKeypoints(keypoints);
-  //     }
-  //   });
-  // }
 
   // eventueel ook op andere javascript file 
   drawKeypoints = (keypoints, scale = 1) => {
@@ -99,8 +68,11 @@ export class Tutorial1Scene extends Phaser.Scene{
     this.load.image('handR', handR);
     this.load.image('handL', handL);
     this.load.image('uitlegHanden', uitlegHanden);
-    // this.load.image('voetR', './assets/keypoints/voetR.png')
-    // this.load.image('voetL', './assets/keypoints/voetL.png')
+    this.load.spritesheet('hart1', hart1, { frameWidth: 337, frameHeight: 409 });
+    this.load.audio('uitlegAudio', uitlegAudio);
+    this.load.audio('probeerHartje', probeerHartje);
+    this.load.audio('Super', Super);
+    this.load.audio('taDa', taDa);
   }
 
 
@@ -129,19 +101,68 @@ export class Tutorial1Scene extends Phaser.Scene{
 
     this.handRight = this.physics.add.existing(this.keypointsGameOjb.rightWrist);
     this.handLeft = this.physics.add.existing(this.keypointsGameOjb.leftWrist);
+    this.targetGroup = this.physics.add.group(); 
+    this.physics.add.overlap(this.handLeft, this.targetGroup, this.handleHit, null, this);
+    this.physics.add.overlap(this.handRight, this.targetGroup, this.handleHit, null, this);
 
-    this.timedEvent = this.time.addEvent({ delay: 1000, callback: this.onEvent, callbackScope: this, repeat: 10 });    
+    this.uitlegAudio = this.sound.add('uitlegAudio', {loop: false});
+    this.probeerHartje = this.sound.add('probeerHartje', {loop: false});
+    this.super = this.sound.add('Super', {loop: false});
+    this.taDa = this.sound.add('taDa', {loop: false});
+
+    this.uitlegAudio.play();
+    this.uitlegAudio.on('complete', this.handleEndAudio, this.scene.scene);
   }
 
-  t = 0; 
-  onEvent(){
-    this.t++
-    if(this.t === 3){
-      console.log('time event', this.t);
-      // this.scene.start('tutorial1_goal', {restart: this.restartNext, webcamObj: this.$webcam, poseNet: this.poseNet });    
-      this.scene.start('tutorial1_goal', {restart: this.restartNext});    
+  handleEndAudio(){
+    console.log('audio is gedaan');
+    this.probeerHartje.play();
+    this.probeerHartje.on('complete', this.drawTarget, this.scene.scene);
+  }
+
+  drawTarget(){
+    let target1 = this.add.sprite(450, 500, 'hart1', 17).setScale(0.5);
+    this.taDa.play();
+    this.anims.create({
+      key: 'beweeg',
+      frames: this.anims.generateFrameNumbers('hart1', { start: 17, end: 18 }),
+      frameRate: 3,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'hit',
+      frames: this.anims.generateFrameNumbers('hart1', { start: 0, end: 16 }),
+      frameRate: 15,
+      repeat: 0
+    });
+    target1.anims.play('beweeg');
+    this.targetGroup.add(target1, true);
+  }
+
+  handleHit (hand, target){
+    console.log('hit');
+    this.countdown = 0;
+    this.targetGroup.remove(target);
+    this.super.play();
+    target.anims.play('hit');
+    target.on('animationcomplete', function(){
+      target.destroy();
+    })
+
+    this.time.addEvent({ delay: 1000, callback: this.onHitCountdown, callbackScope: this, repeat: 2 });    
+}
+
+  countdown = 0; 
+  onHitCountdown(){
+    this.countdown++
+    if(this.countdown >= 1){
+      this.uitlegAudio.stop();
+      this.probeerHartje.stop();
+      this.scene.start('tutorial2', {restart: this.restartNext});    
     }
   }
+
+
 
   // PLUGIN
   handlePoses(poses){

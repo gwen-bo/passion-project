@@ -7,9 +7,9 @@ import PoseNetPlugin from './js/plugins/PoseNetPlugin.js'
 import {StartScene} from './scenes/1StartScene.js';
 import {WelcomeScene} from './scenes/2WelcomeScene.js';
 import {Tutorial1Scene} from './scenes/3Tutorial1.js'; // handen tutorial
-import {Tutorial1_goal} from './scenes/4Tutorial1_goal.js'; // handen tutorial
+// import {Tutorial1_goal} from './scenes/4Tutorial1_goal.js'; // handen tutorial
 import {Tutorial2Scene} from './scenes/5Tutorial2.js'; // handen tutorial
-import {Tutorial2_goal} from './scenes/6Tutorial2_goal.js'; // voeten tutorial
+// import {Tutorial2_goal} from './scenes/6Tutorial2_goal.js'; // voeten tutorial
 import {GameBegin} from './scenes/7GameBegin.js'; // voeten tutorial
 import {GamePlayScene} from './scenes/8GamePlayScene.js'; // gameplay -
 import {EndingScene} from './scenes/9EndingScene.js'; // ending scene -
@@ -41,9 +41,9 @@ const game = new Phaser.Game(config);
 game.scene.add(`start`, StartScene, false);
 game.scene.add(`welcome`, WelcomeScene, false);
 game.scene.add(`tutorial1`, Tutorial1Scene, false);
-game.scene.add(`tutorial1_goal`, Tutorial1_goal, false);
+// game.scene.add(`tutorial1_goal`, Tutorial1_goal, false);
 game.scene.add(`tutorial2`, Tutorial2Scene, false);
-game.scene.add(`tutorial2_goal`, Tutorial2_goal, false);
+// game.scene.add(`tutorial2_goal`, Tutorial2_goal, false);
 game.scene.add(`gameBegin`, GameBegin, false);
 game.scene.add(`gameplay`, GamePlayScene, false);
 game.scene.add(`ending`, EndingScene, false);
