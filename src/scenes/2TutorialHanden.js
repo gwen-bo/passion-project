@@ -13,7 +13,7 @@ import probeerHartje from '../assets/audio/Probeer-maar-Hartje.mp3'
 import Super from '../assets/audio/Super.mp3'
 
 
-export class Tutorial1Scene extends Phaser.Scene{
+export class TutorialHandenScene extends Phaser.Scene{
   constructor(config){
     super(config);
   }
@@ -166,6 +166,10 @@ export class Tutorial1Scene extends Phaser.Scene{
 
   // PLUGIN
   handlePoses(poses){
+    if(poses === false){
+      return; 
+    }
+
     poses.forEach(({score, keypoints}) => {
       if(score >= 0.4){
         this.drawKeypoints(keypoints);

@@ -24,6 +24,8 @@ import plantL from '../assets/img/game/visuals/plantL.png'
 
 import handR from '../assets/img/keypoints/handR.png'
 import handL from '../assets/img/keypoints/handL.png'
+import voetR from '../assets/img/keypoints/voetR.png'
+import voetL from '../assets/img/keypoints/voetL.png'
 
 import hit from '../assets/audio/hit.mp3'
 import Klaar from '../assets/audio/Klaar-start.mp3'
@@ -40,15 +42,21 @@ export class GamePlayScene extends Phaser.Scene{
     super(config);
   }
 
+  skeleton;
   score; 
   restart; 
   restartNext; 
 
   init = async (data) => {
-    this.skeleton = data.skeletonObj;
-
     console.log(`Gameplay scene INIT`);
-    
+
+    // this.skeleton = data.skeletonObj;
+    this.skeleton = {
+      "leftWrist": {part: "leftWrist", x: 500, y: 500},
+      "rightWrist": {part: "rightWrist", x: 500, y: 500},
+      "rightKnee": {part: "rightKnee", x: 500, y: 500},
+      "leftKnee": {part: "leftKnee", x: 500, y: 500}
+    };
     this.score = 0;
     this.pausedTime = 0; 
 
@@ -61,21 +69,15 @@ export class GamePlayScene extends Phaser.Scene{
     }
   }
 
-  // eventueel ook op andere javascript file 
-  drawKeypoints = (keypoints, scale = 1) => {
-    for (let i = 0; i < keypoints.length; i++) {
-        this.handleKeyPoint(keypoints[i], scale);
-    }
-}
-
   handleKeyPoint = (keypoint, scale) => {
+    // console.log(keypoint);
+
     if(!(keypoint.part === "leftWrist" || keypoint.part === "rightWrist" || keypoint.part === "leftKnee" || keypoint.part === "rightKnee")) {
       return;
     }
     if(keypoint.score <= 0.25){
         return;
     }
-
     let skeletonPart = this.skeleton[keypoint.part];
     const {y, x} = keypoint.position;
     skeletonPart.x += (x - skeletonPart.x) / 10;
@@ -85,6 +87,8 @@ export class GamePlayScene extends Phaser.Scene{
   preload(){
     this.load.image('handR', handR);
     this.load.image('handL', handL);
+    this.load.image('voetR', voetR);
+    this.load.image('voetL', voetL);
 
     this.load.audio('hit', hit);
     this.load.spritesheet('hart3', hart3, { frameWidth: 337, frameHeight: 409 });
@@ -124,11 +128,6 @@ export class GamePlayScene extends Phaser.Scene{
     rightKnee: undefined, 
   }
 
-
-  handLeft = undefined; 
-  handRight = undefined; 
-  kneeLeft = undefined; 
-  kneeRight = undefined; 
   targetGroup = undefined; 
 
   scoreMeter; 
@@ -139,21 +138,21 @@ export class GamePlayScene extends Phaser.Scene{
     this.posenetplugin = this.plugins.get('PoseNetPlugin');
 
     this.keypointsGameOjb.leftWrist = this.add.image(this.skeleton.leftWrist.x, this.skeleton.leftWrist.y, 'handL').setScale(0.5);
-    this.handLeft = this.physics.add.existing(this.keypointsGameOjb.leftWrist);
+    const handLeft = this.physics.add.existing(this.keypointsGameOjb.leftWrist);
     this.keypointsGameOjb.rightWrist = this.add.image(this.skeleton.rightWrist.x,this.skeleton.rightWrist.y, 'handR').setScale(0.5);
-    this.handRight = this.physics.add.existing(this.keypointsGameOjb.rightWrist);
+    const handRight = this.physics.add.existing(this.keypointsGameOjb.rightWrist);
     this.keypointsGameOjb.leftKnee = this.add.image(this.skeleton.leftKnee.x, this.skeleton.leftKnee.y, 'voetL').setScale(0.5);
-    this.kneeLeft = this.physics.add.existing(this.keypointsGameOjb.leftKnee);
+    const kneeLeft = this.physics.add.existing(this.keypointsGameOjb.leftKnee);
     this.keypointsGameOjb.rightKnee = this.add.image(this.skeleton.rightKnee.x, this.skeleton.rightKnee.y, 'voetR').setScale(0.5);
-    this.kneeRight = this.physics.add.existing(this.keypointsGameOjb.rightKnee);
+    const kneeRight = this.physics.add.existing(this.keypointsGameOjb.rightKnee);
 
     this.score = 0;
     this.scoreMeter = this.add.image(0, 0, 'score-0').setScale(.7);
-    this.aGrid = new AlignGrid({scene: this.scene, rows: 25, cols: 25, height: window.innerHeight, width: window.innerWidth})
+    this.aGrid = new AlignGrid({scene: this.scene, rows: 35, cols: 25, height: window.innerHeight, width: window.innerWidth})
     // this.aGrid.showNumbers();
-    this.aGrid.placeAtIndex(137, this.scoreMeter); 
+    this.aGrid.placeAtIndex(87, this.scoreMeter); 
 
-    const plantR = this.add.sprite(0, 0, 'plantR', 0).setScale(0.5);
+    const plantR = this.add.sprite(0, 0, 'plantR', 0).setScale(0.7);
     this.anims.create({
       key: 'plantR-move',
       frames: this.anims.generateFrameNumbers('plantR', { start: 0, end: 2 }),
@@ -161,7 +160,7 @@ export class GamePlayScene extends Phaser.Scene{
       repeat: -1
     });
     plantR.play('plantR-move');
-    const plantL = this.add.sprite(0, 0, 'plantL', 0).setScale(0.5);
+    const plantL = this.add.sprite(0, 0, 'plantL', 0).setScale(0.7);
     this.anims.create({
       key: 'plantL-move',
       frames: this.anims.generateFrameNumbers('plantL', { start: 0, end: 2 }),
@@ -169,11 +168,11 @@ export class GamePlayScene extends Phaser.Scene{
       repeat: -1
     });
     plantL.play('plantL-move');
-    this.aGrid.placeAtIndex(497, plantL); //497
-    this.aGrid.placeAtIndex(502, plantR);
+    this.aGrid.placeAtIndex(720, plantL); 
+    this.aGrid.placeAtIndex(728, plantR); 
 
     this.targetGroup = this.physics.add.group(); 
-    this.keypointGroup = this.physics.add.group([this.handLeft, this.handRight]); 
+    this.keypointGroup = this.physics.add.group([handLeft, handRight, kneeLeft, kneeRight]); 
 
     this.hitSound = this.sound.add('hit', {loop: false});
     this.physics.add.overlap(this.keypointGroup, this.targetGroup, this.handleHit, null, this);
@@ -202,20 +201,6 @@ export class GamePlayScene extends Phaser.Scene{
         this.handleKeyPoint(keypoints[i], scale);
     }
   }
-
-  handleKeyPoint = (keypoint, scale) => {
-    if(!(keypoint.part === "leftWrist" || keypoint.part === "rightWrist")) {
-      return;
-    }
-    if(keypoint.score <= 0.25){
-        return;
-    }
-
-    let skeletonPart = this.skeleton[keypoint.part];
-    const {y, x} = keypoint.position;
-    skeletonPart.x += (x - skeletonPart.x) / 10;
-    skeletonPart.y += (y - skeletonPart.y) / 10;
-  };
 
   handleVisualsAndAudio(target){
     let sprite = target.anims.currentFrame.textureKey;
@@ -276,7 +261,7 @@ createCoordinates(){
 
   if(!(this.previousY === undefined && this.previousX === undefined)){
     let distance = Phaser.Math.Distance.Between(this.x, this.y, this.previousX, this.previousY);
-    console.log(this.score, distance);
+      // console.log(this.score, distance);
       if(distance <= 600){
         this.createCoordinates();
         return; 
@@ -292,7 +277,7 @@ createCoordinates(){
  
 drawGoal(){
   // this.targetGroup.clear(true, true);
-  console.log('drawGoal activated');
+  // console.log('drawGoal activated');
   const targets = ["hart3", "hart4", "hart1", "hart6"];
   let currentTarget = targets[Math.floor(Math.random()*targets.length)];
   let newTarget; 
@@ -400,7 +385,7 @@ drawGoal(){
   }
 
   update(){
-    console.log(this.pausedScore);
+    // console.log(this.keypointsGameOjb.leftKnee, this.keypointsGameOjb.rightKnee);
     this.fetchPoses();
 
     this.keypointsGameOjb.leftWrist.x = this.skeleton.leftWrist.x;
@@ -414,6 +399,7 @@ drawGoal(){
 
     this.keypointsGameOjb.rightWrist.x = this.skeleton.rightWrist.x;
     this.keypointsGameOjb.rightWrist.y = this.skeleton.rightWrist.y;
+
 
     if(this.pausedScore === 10){
       this.targetTimer.paused = true; 
@@ -429,5 +415,5 @@ drawGoal(){
 
     this.scoreMeter.setTexture(`score-${this.score}`);
   }
-  
+
 }

@@ -2,6 +2,9 @@ html, body {
     margin: 0;
     height: 100vh;
     background-color: #FFE5D2;
+    display: flex; 
+    justify-content: center;
+    align-items: center;
 }
 
 #webcam {
@@ -10,10 +13,10 @@ html, body {
     margin: 0 auto;
 }
 
- #webcam-feed{
+ /* #webcam-feed{
     z-index: 2; 
      width: 10rem;
      position: absolute; 
      bottom: 2%;
      right: 5%;
- }
+ } */

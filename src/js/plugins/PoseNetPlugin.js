@@ -14,7 +14,7 @@ class PoseNetPlugin extends Phaser.Plugins.BasePlugin {
     init = async () => {
         console.log('PoseNetPlugin has started');
         this.$webcam = document.querySelector('#webcam');
-        this.$webcamFeed = document.querySelector('#webcam-feed');
+        // this.$webcamFeed = document.querySelector('#webcam-feed');
 
         this.poses = [];
         this.$webcam.width = window.innerWidth;
@@ -37,7 +37,7 @@ class PoseNetPlugin extends Phaser.Plugins.BasePlugin {
         this.$webcam.addEventListener('loadeddata', () => {
             console.log('webcam loaded');
             this.loaded = true; 
-            this.$webcamFeed.srcObject = this.videostream;
+            // this.$webcamFeed.srcObject = this.videostream;
         });
     }
 

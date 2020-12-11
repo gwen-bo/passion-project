@@ -33,7 +33,7 @@ export class StartScene extends Phaser.Scene{
     this.posenetplugin = this.plugins.get('PoseNetPlugin');
     this.state = "STAND_BY";
     this.eyeObj = this.add.sprite(0, 0, 'eye', 0);
-    this.aGrid = new AlignGrid({scene: this.scene, rows:25, cols: 11, height: 1710, width: 1030})
+    this.aGrid = new AlignGrid({scene: this.scene, rows: 35, cols: 30, height: window.innerHeight, width: window.innerWidth})
     // this.aGrid.showNumbers();
     this.anims.create({
       key: 'opening',
@@ -48,7 +48,7 @@ export class StartScene extends Phaser.Scene{
       repeat: -1
     }); 
     this.eyeObj.anims.play('closed');
-    this.aGrid.placeAtIndex(126, this.eyeObj);
+    this.aGrid.placeAtIndex(493, this.eyeObj);
   }
 
   activeScore = 0; 
@@ -81,7 +81,7 @@ export class StartScene extends Phaser.Scene{
     }else if(this.activeScore <= 100 && this.activeScore >= 50){
       console.log('eyes should open')
       this.eyeObj.anims.play('opening');
-    }else if(this.activeScore >= 800){
+    }else if(this.activeScore >= 1000){
       this.scene.start('tutorial1', {restart: this.restartNext});    
     }else {
       return; 

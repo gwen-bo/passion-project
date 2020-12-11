@@ -8,7 +8,7 @@ import taDa from '../assets/audio/welcome.mp3'
 import probeerVoeten from '../assets/audio/Probeer-nu-ook-maar-eens-met-je-voeten.mp3'
 import Wauw from '../assets/audio/Wauw.mp3'
 
-export class Tutorial2Scene extends Phaser.Scene{
+export class TutorialVoetenScene extends Phaser.Scene{
   constructor(config){
     super(config);
   }

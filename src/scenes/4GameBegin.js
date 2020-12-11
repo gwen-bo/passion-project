@@ -41,22 +41,27 @@ export class GameBegin extends Phaser.Scene{
     }
 }
 
-  skeleton;
-
-  handleKeyPoint = (keypoint, scale) => {
-    if(!(keypoint.part === "leftWrist" || keypoint.part === "rightWrist" || keypoint.part === "leftKnee" || keypoint.part === "rightKnee")) {
+    skeleton = {
+      "leftWrist": {part: "leftWrist", x: 500, y: 500},
+      "rightWrist": {part: "rightWrist", x: 500, y: 500},
+      "rightKnee": {part: "rightKnee", x: 500, y: 700},
+      "leftKnee": {part: "leftKnee", x: 500, y: 700}
+    };
+    
+    handleKeyPoint = (keypoint, scale) => {
+      if(!(keypoint.part === "leftWrist" || keypoint.part === "rightWrist" || keypoint.part === "leftKnee" || keypoint.part === "rightKnee")) {
         return;
-    }
-    if(keypoint.score <= 0.25){
-        return;
-    }
-
-    let skeletonPart = this.skeleton[keypoint.part];
-    const {y, x} = keypoint.position;
-    skeletonPart.x += (x - skeletonPart.x) / 10;
-    skeletonPart.y += (y - skeletonPart.y) / 10;
-  };
-
+      }
+      if(keypoint.score <= 0.25){
+          return;
+      }
+  
+      let skeletonPart = this.skeleton[keypoint.part];
+      const {y, x} = keypoint.position;
+      skeletonPart.x += (x - skeletonPart.x) / 10;
+      skeletonPart.y += (y - skeletonPart.y) / 10;
+    };
+  
 
   preload(){
     this.load.image('handR', handR);
