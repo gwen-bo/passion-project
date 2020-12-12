@@ -25,6 +25,7 @@ export class TutorialVoetenScene extends Phaser.Scene{
 
     this.restart = data.restart;
     this.restartNext = data.restart;
+    this.pausedTime = 0; 
 
     this.skeleton = {
       "leftWrist": {part: "leftWrist", x: 400, y: 500},
@@ -152,12 +153,24 @@ export class TutorialVoetenScene extends Phaser.Scene{
     }
 }
 
+  pausedTimer(){
+    this.pausedTime++;
+    if(this.pausedTime >= 600){
+      this.scene.stop('timeOut');
+      this.scene.start('start', { restart: true});    
+    }
+  }
+  pausedTime; 
+  pausedScore = 0; 
+
   // PLUGIN
   handlePoses(poses){
     poses.forEach(({score, keypoints}) => {
       if(score >= 0.4){
         this.drawKeypoints(keypoints);
         return; 
+      }else if (score <= 0.02){
+        this.pausedScore++
       }
     })
   }
@@ -176,5 +189,17 @@ export class TutorialVoetenScene extends Phaser.Scene{
     this.keypointsGameOjb.rightKnee.x = this.skeleton.rightKnee.x;
     this.keypointsGameOjb.rightKnee.y = this.skeleton.rightKnee.y;
 
+    // time-out function
+    if(this.pausedScore === 10){
+      this.probeerVoeten.pause();
+      this.scene.launch('timeOut', {currentScene: 'gameplay'});  
+      this.pausedTimer();
+    }else if(this.pausedScore === 500){
+      this.afsluiten.play();
+      this.afsluiten.on('complete', this.handleShutDown, this.scene.scene);
+    }else if(this.pausedScore === 0){
+      this.probeerVoeten.resume();
+      this.scene.sleep('timeOut');
+    }
   }
 }

@@ -26,7 +26,7 @@ import handR from '../assets/img/keypoints/handR.png'
 import handL from '../assets/img/keypoints/handL.png'
 import voetR from '../assets/img/keypoints/voetR.png'
 import voetL from '../assets/img/keypoints/voetL.png'
-
+import backgroundMusic from '../assets/audio/background-music.mp3'
 import hit from '../assets/audio/hit.mp3'
 import Klaar from '../assets/audio/Klaar-start.mp3'
 import Super from '../assets/audio/Super.mp3'
@@ -119,6 +119,7 @@ export class GamePlayScene extends Phaser.Scene{
     this.load.audio('EersteAl', EersteAl);
     this.load.audio('BijnaVol', BijnaVol);
     this.load.audio('Afsluiten', Afsluiten);
+    this.load.audio('backgroundMusic', backgroundMusic);  
   }
 
   keypointsGameOjb = {
@@ -184,6 +185,9 @@ export class GamePlayScene extends Phaser.Scene{
     this.afsluiten = this.sound.add('Afsluiten', {loop: false});
 
     this.klaar.play();
+    this.backgroundMusic = this.sound.add('backgroundMusic', {loop: true});
+    this.backgroundMusic.setVolume(0.1);
+
     this.klaar.on('complete', this.handleStart, this.scene.scene);
     this.targetTimer = this.time.addEvent({ delay: 3000, callback: this.createCoordinates, callbackScope: this, loop: true });    
     this.targetTimer.paused = true; 
@@ -192,6 +196,7 @@ export class GamePlayScene extends Phaser.Scene{
   targetTimer; 
   handleStart(){
     this.createCoordinates();
+    this.backgroundMusic.play();
     this.targetTimer.paused = false; 
 
   }
@@ -236,6 +241,7 @@ export class GamePlayScene extends Phaser.Scene{
       break; 
       case 13: 
         this.bijnaVol.stop();
+        this.backgroundMusic.stop();
         this.scene.start('ending');    
       break; 
     }
@@ -381,11 +387,11 @@ drawGoal(){
 
   handleShutDown(){
     this.scene.sleep('timeOut');
-    this.scene.start('startup');
+    this.backgroundMusic.stop();
+    this.scene.start('start');
   }
 
   update(){
-    // console.log(this.keypointsGameOjb.leftKnee, this.keypointsGameOjb.rightKnee);
     this.fetchPoses();
 
     this.keypointsGameOjb.leftWrist.x = this.skeleton.leftWrist.x;

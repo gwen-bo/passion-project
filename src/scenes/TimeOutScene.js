@@ -23,7 +23,7 @@ export class TimeOutScene extends Phaser.Scene{
       this.anims.create({
         key: 'paused',
         frames: this.anims.generateFrameNumbers('timeOutScreen', { start: 0, end: 1 }),
-        frameRate: 3,
+        frameRate: 2,
         repeat: -1
       });
       timeOutMessage.anims.play('paused');

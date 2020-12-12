@@ -25,6 +25,7 @@ export class TutorialHandenScene extends Phaser.Scene{
 
     console.log(`TutorialScene-1 INIT`);
     this.countdown = 0
+    this.pausedTime = 0; 
     this.restart = data.restart;
     this.restartNext = data.restart;
 
@@ -36,7 +37,6 @@ export class TutorialHandenScene extends Phaser.Scene{
     if(this.restart === true){
       console.log('restarting');
       this.scene.restart({ restart: false})
-
     }
   }
 
@@ -54,6 +54,7 @@ export class TutorialHandenScene extends Phaser.Scene{
         return;
     }
     if(keypoint.score <= 0.25){
+        this.pausedScore++
         return;
     }
 
@@ -162,7 +163,15 @@ export class TutorialHandenScene extends Phaser.Scene{
     }
   }
 
-
+  pausedTimer(){
+    this.pausedTime++;
+    if(this.pausedTime >= 600){
+      this.scene.stop('timeOut');
+      this.scene.start('start', { restart: true});    
+    }
+  }
+  pausedTime; 
+  pausedScore = 0; 
 
   // PLUGIN
   handlePoses(poses){
@@ -172,8 +181,11 @@ export class TutorialHandenScene extends Phaser.Scene{
 
     poses.forEach(({score, keypoints}) => {
       if(score >= 0.4){
+        this.pausedScore = 0; 
         this.drawKeypoints(keypoints);
         return; 
+      }else if (score <= 0.02){
+        this.pausedScore++
       }
     })
   }
@@ -191,6 +203,22 @@ export class TutorialHandenScene extends Phaser.Scene{
 
     this.keypointsGameOjb.rightWrist.x = this.skeleton.rightWrist.x;
     this.keypointsGameOjb.rightWrist.y = this.skeleton.rightWrist.y;
+
+    // time-out function
+    if(this.pausedScore === 10){
+      this.uitlegAudio.pause();
+      this.probeerHartje.pause();      
+      this.scene.launch('timeOut', {currentScene: 'gameplay'});  
+      this.pausedTimer();
+    }else if(this.pausedScore === 500){
+      this.afsluiten.play();
+      this.afsluiten.on('complete', this.handleShutDown, this.scene.scene);
+    }else if(this.pausedScore === 0){
+      this.uitlegAudio.resume();
+      this.probeerHartje.resume();      
+      this.scene.sleep('timeOut');
+    }
+
 
   }
 }
