@@ -1,20 +1,24 @@
 # Passion project Gwen Bogaert
-Passion project voor expert creative development
+Personal passion project voor expert creative development
 
-## :point_right: klant
-Ik heb ervoor gekozen om mijn project uit te werken voor het JEF Festival. Hier zal de uiteindelijke eindgebruiker de bezoekers van het festival zelf zijn en meer specifiek de jongere bezoekers. 
+## Klant
+Ik heb ervoor gekozen om mijn project uit te werken voor het JEF Festival. Hier zal de uiteindelijke eindgebruiker de bezoekers van het festival zelf zijn en meer specifiek de jongere bezoekers (startend vanaf 4jaar). 
 
-## :point_right: core project statement
-Voor de uitwerking zal ik voornamelijk gebruik van een pose estimation/tracking technology (PoseNet) als core technology om de interactiviteit en beweging te stimuleren. Dit wordt gebruikt om de bewegingen van de kinderen te analyseren en de installatie aan te sturen, afhankelijk van de verdere uitwerking zou webGL gebruikt kunnen worden om de visuele aspecten van de installatie te voorzien. Ze zullen a.d.h.v. gamification enkele ‘doelen’ moeten behalen door allerlei verschillende posities aan te nemen. 
-
-Het thema ‘ondersteboven’ zal vooral terugkomen in het thema van het spel en de opstelling van de installatie. 
+## Core project statement
+Voor de uitwerking zal ik voornamelijk gebruik van een pose estimation/tracking technology (PoseNet) als core technology om de interactiviteit en beweging te stimuleren. Een interactieve game waarin ‘ondersteboven’ zowel in het thema als de opstelling van het spel terug zal komen. Tijdens het spelen zal de speler met de handen en voeten het spel kunnen aansturen om objecten te verzamelen en zo het spel te beëindigen. Het game-aspect wordt afgehandeld in Phaser.io. 
 
 De onderzoeksvraag komt dus neer op: hoe kan ik een pose estimation/tracking technology gebruiken om een leerrijke en interactieve ervaring aan te bieden aan de jongste bezoekers van het JEF festival? 
 
+## At-home versie
+Deze installatie zal ook een 'at-home' versie hebben. Deze 'at-home' variant staat online en is toegankelijk voor iedereen via de link. 
+Deze versie focust enkel op de handen om het spelen thuis, iets makkelijker te maken en is ook voorzien van de nodige audiobegeleiding (en buttons om deze over te slaan).
+- github repo naar de at-home versie: github.com/gwen-bo/passion-project-web
+- link naar de at-home versie: ondersteboven-van-jou.netlify.app
 
-## :point_right: deliverables
+## Deliverables
 
 - Installatie *(fysiek)*
+- Online (at-home) versie *(link)*
 - Broncode *(zip)*
 - GitHub link *(link)*
 - Blog met documentatie van het proces/ research/.. *(link)*
@@ -23,5 +27,7 @@ De onderzoeksvraag komt dus neer op: hoe kan ik een pose estimation/tracking tec
 - Indien geselecteerd door JEF: 
     - promotekst over installatie/ idee/ beeld/ video/ contactgegevens
 
-## :point_right: blog
-    gwenbogaertpassionproject.wordpress.com
+## Links
+    gwenbogaertpassionproject.wordpress.com (blog)
+    github.com/gwen-bo/passion-project-web (at-home versie)
+    ondersteboven-van-jou.netlify.app (at-home versie)
