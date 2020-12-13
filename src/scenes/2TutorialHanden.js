@@ -1,16 +1,13 @@
-// uitleg over handen strekken en bolletje dat handen voorstelt 
 import handR from '../assets/img/keypoints/handR.png'
 import handL from '../assets/img/keypoints/handL.png'
 import uitlegHanden from '../assets/img/tutorial/Handen-tut.png'
-
 import AlignGrid from '../js/utilities/alignGrid'
-
 import hart1 from '../assets/img/game/sprites/hart1.png'
-
 import taDa from '../assets/audio/welcome.mp3'
 import uitlegAudio from '../assets/audio/Dit-spel-speel-je-met-je-handen-en-voeten.mp3'
 import probeerHartje from '../assets/audio/Probeer-maar-Hartje.mp3'
 import Super from '../assets/audio/Super.mp3'
+import Afsluiten from '../assets/audio/Oeps-niemand-te-zien.mp3'
 
 
 export class TutorialHandenScene extends Phaser.Scene{
@@ -20,12 +17,23 @@ export class TutorialHandenScene extends Phaser.Scene{
 
   restart; 
   restartNext; 
+  pausedScore; 
+  skeleton;
+  keypointsGameOjb = {
+    leftWrist: undefined,
+    rightWrist: undefined, 
+    leftKnee: undefined, // in uiteindelijke intsallatie zal dit leftAnkle zijn (voor demo purpose is dit leftKnee) 
+    rightKnee: undefined, // in uiteindelijke intsallatie zal dit rightAnkle zijn (voor demo purpose is dit rightKnee)
+  }
+  handLeft = undefined; 
+  handRight = undefined; 
+  posenetplugin;
+  countdown = 0; 
 
   init = async (data) => {
 
-    console.log(`TutorialScene-1 INIT`);
     this.countdown = 0
-    this.pausedTime = 0; 
+    this.pausedScore = 0; 
     this.restart = data.restart;
     this.restartNext = data.restart;
 
@@ -35,7 +43,6 @@ export class TutorialHandenScene extends Phaser.Scene{
     };
 
     if(this.restart === true){
-      console.log('restarting');
       this.scene.restart({ restart: false})
     }
   }
@@ -47,7 +54,6 @@ export class TutorialHandenScene extends Phaser.Scene{
     }
 }
 
-  skeleton;
 
   handleKeyPoint = (keypoint, scale) => {
     if(!(keypoint.part === "leftWrist" || keypoint.part === "rightWrist" )) {
@@ -74,20 +80,8 @@ export class TutorialHandenScene extends Phaser.Scene{
     this.load.audio('probeerHartje', probeerHartje);
     this.load.audio('Super', Super);
     this.load.audio('taDa', taDa);
+    this.load.audio('Afsluiten', Afsluiten);
   }
-
-
-  keypointsGameOjb = {
-    leftWrist: undefined,
-    rightWrist: undefined, 
-    leftAnkle: undefined, 
-    rightAnkle: undefined, 
-  }
-
-
-  handLeft = undefined; 
-  handRight = undefined; 
-  posenetplugin;
 
   create(){
     this.posenetplugin = this.plugins.get('PoseNetPlugin');
@@ -110,13 +104,13 @@ export class TutorialHandenScene extends Phaser.Scene{
     this.probeerHartje = this.sound.add('probeerHartje', {loop: false});
     this.super = this.sound.add('Super', {loop: false});
     this.taDa = this.sound.add('taDa', {loop: false});
+    this.afsluiten = this.sound.add('Afsluiten', {loop: false});
 
     this.uitlegAudio.play();
     this.uitlegAudio.on('complete', this.handleEndAudio, this.scene.scene);
   }
 
   handleEndAudio(){
-    console.log('audio is gedaan');
     this.probeerHartje.play();
     this.probeerHartje.on('complete', this.drawTarget, this.scene.scene);
   }
@@ -141,7 +135,6 @@ export class TutorialHandenScene extends Phaser.Scene{
   }
 
   handleHit (hand, target){
-    console.log('hit');
     this.countdown = 0;
     this.targetGroup.remove(target);
     this.super.play();
@@ -153,27 +146,17 @@ export class TutorialHandenScene extends Phaser.Scene{
     this.time.addEvent({ delay: 1000, callback: this.onHitCountdown, callbackScope: this, repeat: 2 });    
 }
 
-  countdown = 0; 
   onHitCountdown(){
     this.countdown++
     if(this.countdown >= 1){
       this.uitlegAudio.stop();
       this.probeerHartje.stop();
+      this.afsluiten.stop();
       this.scene.start('tutorial2', {restart: this.restartNext});    
     }
   }
 
-  pausedTimer(){
-    this.pausedTime++;
-    if(this.pausedTime >= 600){
-      this.scene.stop('timeOut');
-      this.scene.start('start', { restart: true});    
-    }
-  }
-  pausedTime; 
-  pausedScore = 0; 
 
-  // PLUGIN
   handlePoses(poses){
     if(poses === false){
       return; 
@@ -184,7 +167,7 @@ export class TutorialHandenScene extends Phaser.Scene{
         this.pausedScore = 0; 
         this.drawKeypoints(keypoints);
         return; 
-      }else if (score <= 0.02){
+      }else if (score <= 0.08){
         this.pausedScore++
       }
     })
@@ -193,6 +176,13 @@ export class TutorialHandenScene extends Phaser.Scene{
   fetchPoses = async () => {
     let poses = await this.posenetplugin.poseEstimation();
     this.handlePoses(poses);
+  }
+
+  handleShutDown(){
+    this.scene.sleep('timeOut');
+    this.uitlegAudio.stop();
+    this.probeerHartje.stop();
+    this.scene.start('start', {restart: true});    
   }
 
   update(){
@@ -209,8 +199,7 @@ export class TutorialHandenScene extends Phaser.Scene{
       this.uitlegAudio.pause();
       this.probeerHartje.pause();      
       this.scene.launch('timeOut', {currentScene: 'gameplay'});  
-      this.pausedTimer();
-    }else if(this.pausedScore === 500){
+    }else if(this.pausedScore <= 150 && this.pausedScore >= 100){ 
       this.afsluiten.play();
       this.afsluiten.on('complete', this.handleShutDown, this.scene.scene);
     }else if(this.pausedScore === 0){

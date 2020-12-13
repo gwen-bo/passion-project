@@ -12,16 +12,12 @@ import score10 from '../assets/img/game/meter/10.png'
 import score11 from '../assets/img/game/meter/11.png'
 import score12 from '../assets/img/game/meter/12.png'
 import score13 from '../assets/img/game/meter/13.png'
-
 import hart3 from '../assets/img/game/sprites/hart3.png'
 import hart4 from '../assets/img/game/sprites/hart4.png'
 import hart1 from '../assets/img/game/sprites/hart1.png'
 import hart6 from '../assets/img/game/sprites/hart6.png'
-
 import plantR from '../assets/img/game/visuals/plantR.png'
 import plantL from '../assets/img/game/visuals/plantL.png'
-
-
 import handR from '../assets/img/keypoints/handR.png'
 import handL from '../assets/img/keypoints/handL.png'
 import voetR from '../assets/img/keypoints/voetR.png'
@@ -46,32 +42,35 @@ export class GamePlayScene extends Phaser.Scene{
   score; 
   restart; 
   restartNext; 
+  keypointsGameOjb = {
+    leftWrist: undefined,
+    rightWrist: undefined, 
+    leftKnee: undefined, 
+    rightKnee: undefined, 
+  }
+
+  targetGroup = undefined; 
+  pausedScore = 0; 
+  scoreMeter; 
+  hitSound;
+  aGrid; 
+  posenetplugin; 
+  targetTimer; 
 
   init = async (data) => {
-    console.log(`Gameplay scene INIT`);
-
-    // this.skeleton = data.skeletonObj;
-    this.skeleton = {
-      "leftWrist": {part: "leftWrist", x: 500, y: 500},
-      "rightWrist": {part: "rightWrist", x: 500, y: 500},
-      "rightKnee": {part: "rightKnee", x: 500, y: 500},
-      "leftKnee": {part: "leftKnee", x: 500, y: 500}
-    };
+    this.skeleton = data.skeletonObj;
     this.score = 0;
-    this.pausedTime = 0; 
+    this.pausedScore = 0; 
 
     this.restart = data.restart;
     this.restartNext = data.restart;
 
     if(this.restart === true){
-      console.log('restarting');
       this.scene.restart({ restart: false})
     }
   }
 
   handleKeyPoint = (keypoint, scale) => {
-    // console.log(keypoint);
-
     if(!(keypoint.part === "leftWrist" || keypoint.part === "rightWrist" || keypoint.part === "leftKnee" || keypoint.part === "rightKnee")) {
       return;
     }
@@ -122,19 +121,6 @@ export class GamePlayScene extends Phaser.Scene{
     this.load.audio('backgroundMusic', backgroundMusic);  
   }
 
-  keypointsGameOjb = {
-    leftWrist: undefined,
-    rightWrist: undefined, 
-    leftKnee: undefined, 
-    rightKnee: undefined, 
-  }
-
-  targetGroup = undefined; 
-
-  scoreMeter; 
-  hitSound;
-  aGrid; 
-  posenetplugin; 
   create(){
     this.posenetplugin = this.plugins.get('PoseNetPlugin');
 
@@ -193,7 +179,6 @@ export class GamePlayScene extends Phaser.Scene{
     this.targetTimer.paused = true; 
   }
 
-  targetTimer; 
   handleStart(){
     this.createCoordinates();
     this.backgroundMusic.play();
@@ -255,11 +240,10 @@ export class GamePlayScene extends Phaser.Scene{
     return; 
 }
 
-// checking if distance is big enough between the coördinates
 x; 
 y; 
-previousX =0; 
-previousY =0;
+previousX = 0; 
+previousY = 0;
 createCoordinates(){
   this.targetGroup.clear(true, true);
   this.x = Phaser.Math.Between(100, (window.innerWidth - 100));
@@ -267,7 +251,6 @@ createCoordinates(){
 
   if(!(this.previousY === undefined && this.previousX === undefined)){
     let distance = Phaser.Math.Distance.Between(this.x, this.y, this.previousX, this.previousY);
-      // console.log(this.score, distance);
       if(distance <= 600){
         this.createCoordinates();
         return; 
@@ -282,8 +265,6 @@ createCoordinates(){
 }
  
 drawGoal(){
-  // this.targetGroup.clear(true, true);
-  // console.log('drawGoal activated');
   const targets = ["hart3", "hart4", "hart1", "hart6"];
   let currentTarget = targets[Math.floor(Math.random()*targets.length)];
   let newTarget; 
@@ -357,24 +338,13 @@ drawGoal(){
   this.targetGroup.add(newTarget, false);
 }
 
-  pausedTimer(){
-    this.pausedTime++;
-    if(this.pausedTime >= 600){
-      this.scene.stop('timeOut');
-      this.scene.start('start', { restart: true, webcamObj: this.$webcam, poseNet: this.poseNet});    
-    }
-  }
-  pausedTime; 
-
-  pausedScore = 0; 
-  // PLUGIN
   handlePoses(poses){
     poses.forEach(({score, keypoints}) => {
       if(score >= 0.4){
         this.pausedScore = 0; 
         this.drawKeypoints(keypoints);
         return; 
-      }else if (score <= 0.02){
+      }else if (score <= 0.08){
         this.pausedScore++
       }
     })
@@ -388,7 +358,7 @@ drawGoal(){
   handleShutDown(){
     this.scene.sleep('timeOut');
     this.backgroundMusic.stop();
-    this.scene.start('start');
+    this.scene.start('start', {restart: true});    
   }
 
   update(){
@@ -407,15 +377,12 @@ drawGoal(){
     this.keypointsGameOjb.rightWrist.y = this.skeleton.rightWrist.y;
 
 
-    if(this.pausedScore === 10){
-      this.targetTimer.paused = true; 
+    if(this.pausedScore === 10){    
       this.scene.launch('timeOut', {currentScene: 'gameplay'});  
-      this.pausedTimer();
-    }else if(this.pausedScore === 500){
+    }else if(this.pausedScore <= 150 && this.pausedScore >= 100){ 
       this.afsluiten.play();
       this.afsluiten.on('complete', this.handleShutDown, this.scene.scene);
     }else if(this.pausedScore === 0){
-      this.targetTimer.paused = false; 
       this.scene.sleep('timeOut');
     }
 

@@ -8,9 +8,9 @@ export class EndingScene extends Phaser.Scene{
     super(config);
   }
 
+  t = 0; 
   init = async() => {
     this.t = 0; 
-    console.log(`EndingScene INIT`);
   }
 
   preload(){
@@ -36,7 +36,6 @@ export class EndingScene extends Phaser.Scene{
     this.helemaalVol.play();
   }
 
-  t = 0; 
   onEvent(){
     this.t++
     if(this.t >= 10){

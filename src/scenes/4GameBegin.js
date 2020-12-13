@@ -1,12 +1,9 @@
-// uitleg over handen strekken en bolletje dat handen voorstelt 
 import voetR from '../assets/img/keypoints/voetR.png'
 import voetL from '../assets/img/keypoints/voetL.png'
 import handR from '../assets/img/keypoints/handR.png'
 import handL from '../assets/img/keypoints/handL.png'
-
 import titlescreen from '../assets/img/titlescreen/titlescreen.png'
 import betekenisAudio from '../assets/audio/Ondersteboven-zijn-van-iemand-betekent.mp3'
-
 import AlignGrid from '../js/utilities/alignGrid'
 
 export class GameBegin extends Phaser.Scene{
@@ -15,9 +12,20 @@ export class GameBegin extends Phaser.Scene{
   }
   restart; 
   restartNext; 
+  skeleton;
+  keypointsGameOjb = {
+    leftWrist: undefined,
+    rightWrist: undefined, 
+    leftKnee: undefined, // in uiteindelijke intsallatie zal dit leftAnkle zijn (voor demo purpose is dit leftKnee) 
+    rightKnee: undefined, // in uiteindelijke intsallatie zal dit rightAnkle zijn (voor demo purpose is dit rightKnee)
+  }
+  handLeft = undefined; 
+  handRight = undefined; 
+  kneeLeft = undefined; 
+  kneeRight = undefined; 
+  posenetplugin;
 
   init = async (data) => {
-    console.log(`GameBegin INIT`);
 
     this.restart = data.restart;
     this.restartNext = data.restart;
@@ -30,7 +38,6 @@ export class GameBegin extends Phaser.Scene{
     };
 
     if(this.restart === true){
-      console.log('restarting');
       this.scene.restart({ restart: false})
     }
   }
@@ -40,13 +47,6 @@ export class GameBegin extends Phaser.Scene{
         this.handleKeyPoint(keypoints[i], scale);
     }
 }
-
-    skeleton = {
-      "leftWrist": {part: "leftWrist", x: 500, y: 500},
-      "rightWrist": {part: "rightWrist", x: 500, y: 500},
-      "rightKnee": {part: "rightKnee", x: 500, y: 700},
-      "leftKnee": {part: "leftKnee", x: 500, y: 700}
-    };
     
     handleKeyPoint = (keypoint, scale) => {
       if(!(keypoint.part === "leftWrist" || keypoint.part === "rightWrist" || keypoint.part === "leftKnee" || keypoint.part === "rightKnee")) {
@@ -73,32 +73,16 @@ export class GameBegin extends Phaser.Scene{
   }
 
 
-  keypointsGameOjb = {
-    leftWrist: undefined,
-    rightWrist: undefined, 
-    leftKnee: undefined, 
-    rightKnee: undefined, 
-  }
-
-
-  handLeft = undefined; 
-  handRight = undefined; 
-  kneeLeft = undefined; 
-  kneeRight = undefined; 
-  posenetplugin;
+  
   create(){
     this.posenetplugin = this.plugins.get('PoseNetPlugin');
     this.aGrid = new AlignGrid({scene: this.scene, rows:25, cols: 25, height: window.innerHeight, width: window.innerWidth})
     // this.aGrid.showNumbers();
 
     this.keypointsGameOjb.leftWrist = this.add.image(this.skeleton.leftWrist.x, this.skeleton.leftWrist.y, 'handL').setScale(0.5);
-    // this.handLeft = this.physics.add.existing(this.keypointsGameOjb.leftWrist);
     this.keypointsGameOjb.rightWrist = this.add.image(this.skeleton.rightWrist.x,this.skeleton.rightWrist.y, 'handR').setScale(0.5);
-    // this.handRight = this.physics.add.existing(this.keypointsGameOjb.rightWrist);
     this.keypointsGameOjb.leftKnee = this.add.image(this.skeleton.leftKnee.x, this.skeleton.leftKnee.y, 'voetL').setScale(0.5);
-    // this.kneeLeft = this.physics.add.existing(this.keypointsGameOjb.leftKnee);
     this.keypointsGameOjb.rightKnee = this.add.image(this.skeleton.rightKnee.x, this.skeleton.rightKnee.y, 'voetR').setScale(0.5);
-    // this.kneeRight = this.physics.add.existing(this.keypointsGameOjb.rightKnee);
 
     let title = this.add.sprite(0, 0, 'titlescreen', 0).setScale(0.8);
     this.aGrid.placeAtIndex(312, title); // 
@@ -116,12 +100,9 @@ export class GameBegin extends Phaser.Scene{
   }
 
   handleEndAudio(){
-    console.log('audio is gedaan');
     this.scene.start('gameplay', { restart: this.restartNext, skeletonObj: this.skeleton});    
   }
 
-
-  // PLUGIN
   handlePoses(poses){
     poses.forEach(({score, keypoints}) => {
       if(score >= 0.4){

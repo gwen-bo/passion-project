@@ -1,4 +1,3 @@
-// uitleg over handen strekken en bolletje dat handen voorstelt 
 import voetR from '../assets/img/keypoints/voetR.png'
 import voetL from '../assets/img/keypoints/voetL.png'
 import uitlegVoeten from '../assets/img/tutorial/Voeten-tut.png'
@@ -7,25 +6,33 @@ import hart1 from '../assets/img/game/sprites/hart1.png'
 import taDa from '../assets/audio/welcome.mp3'
 import probeerVoeten from '../assets/audio/Probeer-nu-ook-maar-eens-met-je-voeten.mp3'
 import Wauw from '../assets/audio/Wauw.mp3'
+import Afsluiten from '../assets/audio/Oeps-niemand-te-zien.mp3'
 
 export class TutorialVoetenScene extends Phaser.Scene{
   constructor(config){
     super(config);
   }
 
-
   restart; 
   restartNext; 
+  pausedScore = 0; 
+  skeleton;
+  countdown = 0; 
+  keypointsGameOjb = {
+    leftWrist: undefined,
+    rightWrist: undefined, 
+    leftKnee: undefined, // in uiteindelijke intsallatie zal dit leftAnkle zijn (voor demo purpose is dit leftKnee) 
+    rightKnee: undefined, // in uiteindelijke intsallatie zal dit rightAnkle zijn (voor demo purpose is dit rightKnee)
+  }
+  footLeft = undefined; 
+  footRight = undefined; 
+  posenetplugin;
 
   init = async (data) => {
-
     this.t = 0; 
-
-    console.log(`TutorialScene-2 INIT`);
-
     this.restart = data.restart;
     this.restartNext = data.restart;
-    this.pausedTime = 0; 
+    this.pausedScore = 0; 
 
     this.skeleton = {
       "leftWrist": {part: "leftWrist", x: 400, y: 500},
@@ -35,19 +42,16 @@ export class TutorialVoetenScene extends Phaser.Scene{
     };
 
     if(this.restart === true){
-      console.log('restarting');
       this.scene.restart({ restart: false})
     }
   }
 
-  // eventueel ook op andere javascript file 
   drawKeypoints = (keypoints, scale = 1) => {
     for (let i = 0; i < keypoints.length; i++) {
         this.handleKeyPoint(keypoints[i], scale);
     }
 }
 
-  skeleton;
 
   handleKeyPoint = (keypoint, scale) => {
     if(!(keypoint.part === "leftKnee" || keypoint.part === "rightKnee" )) {
@@ -72,20 +76,8 @@ export class TutorialVoetenScene extends Phaser.Scene{
     this.load.audio('probeerVoeten', probeerVoeten);
     this.load.audio('Wauw', Wauw);
     this.load.audio('taDa', taDa);
+    this.load.audio('Afsluiten', Afsluiten);
   }
-
-  // in de uiteindelijke code zal dit leftAnkel en rightAnkle moeten zijn
-  keypointsGameOjb = {
-    leftWrist: undefined,
-    rightWrist: undefined, 
-    leftKnee: undefined, 
-    rightKnee: undefined, 
-  }
-
-
-  footLeft = undefined; 
-  footRight = undefined; 
-  posenetplugin;
 
   create(){
     this.posenetplugin = this.plugins.get('PoseNetPlugin');
@@ -107,13 +99,14 @@ export class TutorialVoetenScene extends Phaser.Scene{
     this.probeerVoeten = this.sound.add('probeerVoeten', {loop: false});
     this.wauw = this.sound.add('Wauw', {loop: false});
     this.taDa = this.sound.add('taDa', {loop: false});
+    this.afsluiten = this.sound.add('Afsluiten', {loop: false});
 
     this.probeerVoeten.play();
     this.probeerVoeten.on('complete', this.drawTarget, this.scene.scene);
   }
 
   drawTarget(){
-    let target1 = this.add.sprite(350, 1000, 'hart1', 17).setScale(0.5);
+    let target1 = this.add.sprite(350, 1300, 'hart1', 17).setScale(0.5);
     this.taDa.play();
     this.anims.create({
       key: 'beweeg',
@@ -132,7 +125,6 @@ export class TutorialVoetenScene extends Phaser.Scene{
   }
 
   handleHit (hand, target){
-    console.log('hit');
     this.countdown = 0;
     this.targetGroup.remove(target);
     this.wauw.play();
@@ -144,29 +136,20 @@ export class TutorialVoetenScene extends Phaser.Scene{
     this.time.addEvent({ delay: 1000, callback: this.onHitCountdown, callbackScope: this, repeat: 2 });    
 }
 
-  countdown = 0; 
   onHitCountdown(){
     this.countdown++
     if(this.countdown >= 1){
       this.probeerVoeten.stop();
+      this.afsluiten.stop();
       this.scene.start('gameBegin', {restart: this.restartNext});    
     }
 }
 
-  pausedTimer(){
-    this.pausedTime++;
-    if(this.pausedTime >= 600){
-      this.scene.stop('timeOut');
-      this.scene.start('start', { restart: true});    
-    }
-  }
-  pausedTime; 
-  pausedScore = 0; 
 
-  // PLUGIN
   handlePoses(poses){
     poses.forEach(({score, keypoints}) => {
       if(score >= 0.4){
+        this.pausedScore = 0;
         this.drawKeypoints(keypoints);
         return; 
       }else if (score <= 0.02){
@@ -180,6 +163,12 @@ export class TutorialVoetenScene extends Phaser.Scene{
     this.handlePoses(poses);
   }
 
+  handleShutDown(){
+    this.scene.sleep('timeOut');
+    this.probeerVoeten.stop();
+    this.scene.start('start', {restart: true});    
+  }
+
   update(){
     this.fetchPoses();
 
@@ -190,15 +179,14 @@ export class TutorialVoetenScene extends Phaser.Scene{
     this.keypointsGameOjb.rightKnee.y = this.skeleton.rightKnee.y;
 
     // time-out function
-    if(this.pausedScore === 10){
-      this.probeerVoeten.pause();
+    if(this.pausedScore === 15){
+      this.probeerVoeten.pause();      
       this.scene.launch('timeOut', {currentScene: 'gameplay'});  
-      this.pausedTimer();
-    }else if(this.pausedScore === 500){
+    }else if(this.pausedScore <= 150 && this.pausedScore >= 100){ 
       this.afsluiten.play();
       this.afsluiten.on('complete', this.handleShutDown, this.scene.scene);
     }else if(this.pausedScore === 0){
-      this.probeerVoeten.resume();
+      this.probeerVoeten.resume();      
       this.scene.sleep('timeOut');
     }
   }

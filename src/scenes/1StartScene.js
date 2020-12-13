@@ -1,4 +1,3 @@
-// import PoseNetPlugin from "../index";
 import eye from '../assets/img/start/eye.png'
 import AlignGrid from '../js/utilities/alignGrid'
 
@@ -7,31 +6,28 @@ export class StartScene extends Phaser.Scene{
     super(config);
   }
 
-  state; 
   restart; 
   restartNext; 
+  activeScore; 
+  eyeObj; 
+  posenetplugin;
 
     init = (data) => {
 
-    console.log(`StartScene INIT`);
-
-    this.restart = data.restart;
+    this.activeScore = 0; 
     this.restartNext = data.restart;
-    if(this.restart === true){
+    if(data.restart === true){
       this.scene.restart({ restart: false})
     }
-
   }
 
-  eyeObj; 
-  posenetplugin;
   preload(){
     this.load.spritesheet('eye', eye, { frameWidth: 800, frameHeight: 598 });
   }
   
   create(){
+    this.activeScore = 0; 
     this.posenetplugin = this.plugins.get('PoseNetPlugin');
-    this.state = "STAND_BY";
     this.eyeObj = this.add.sprite(0, 0, 'eye', 0);
     this.aGrid = new AlignGrid({scene: this.scene, rows: 35, cols: 30, height: window.innerHeight, width: window.innerWidth})
     // this.aGrid.showNumbers();
@@ -51,8 +47,6 @@ export class StartScene extends Phaser.Scene{
     this.aGrid.placeAtIndex(493, this.eyeObj);
   }
 
-  activeScore = 0; 
-  // PLUGIN
   handlePoses(poses){
     if(poses === false){
         return; 
@@ -61,8 +55,8 @@ export class StartScene extends Phaser.Scene{
       if(score >= 0.4){
         this.activeScore++
         return; 
-      }else if (score <= 0.05 ){
-        this.activeScore === 0;
+      }else if (score <= 0.07 ){
+        this.activeScore = 0;
       }
     })
   }
@@ -73,15 +67,13 @@ export class StartScene extends Phaser.Scene{
   }
  
   update(){
-    console.log(this.activeScore);
     this.fetchPoses();
 
     if(this.activeScore === 0){
       this.eyeObj.anims.play('closed');
-    }else if(this.activeScore <= 100 && this.activeScore >= 50){
-      console.log('eyes should open')
+    }else if(this.activeScore <= 100 && this.activeScore >= 30){
       this.eyeObj.anims.play('opening');
-    }else if(this.activeScore >= 1000){
+    }else if(this.activeScore >= 200){
       this.scene.start('tutorial1', {restart: this.restartNext});    
     }else {
       return; 

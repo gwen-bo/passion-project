@@ -14,14 +14,12 @@ class PoseNetPlugin extends Phaser.Plugins.BasePlugin {
     init = async () => {
         console.log('PoseNetPlugin has started');
         this.$webcam = document.querySelector('#webcam');
-        // this.$webcamFeed = document.querySelector('#webcam-feed');
 
         this.poses = [];
         this.$webcam.width = window.innerWidth;
         this.$webcam.height = window.innerHeight;
 
         this.poseNet = await posenet.load();
-        // const videostream = await navigator.mediaDevices.getUserMedia({ video: true });
         try {
             this.videostream = await navigator.mediaDevices.getUserMedia({ video: { width: 1080, height: 1920 } });
             if (!this.$webcam.captureStream) {
@@ -37,7 +35,6 @@ class PoseNetPlugin extends Phaser.Plugins.BasePlugin {
         this.$webcam.addEventListener('loadeddata', () => {
             console.log('webcam loaded');
             this.loaded = true; 
-            // this.$webcamFeed.srcObject = this.videostream;
         });
     }
 
@@ -48,9 +45,7 @@ class PoseNetPlugin extends Phaser.Plugins.BasePlugin {
         const pose = await this.poseNet.estimateSinglePose(this.$webcam, {
             flipHorizontal: true,
         });
-        // console.log('pose estimation');
         this.poses = this.poses.concat(pose);
-
         return this.poses; 
     }
 
@@ -59,7 +54,6 @@ class PoseNetPlugin extends Phaser.Plugins.BasePlugin {
     }
 
     stop(){
-
     }
 
     destroy()
