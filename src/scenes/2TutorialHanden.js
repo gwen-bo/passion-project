@@ -52,7 +52,7 @@ export class TutorialHandenScene extends Phaser.Scene{
     for (let i = 0; i < keypoints.length; i++) {
         this.handleKeyPoint(keypoints[i], scale);
     }
-}
+  }
 
 
   handleKeyPoint = (keypoint, scale) => {
@@ -199,7 +199,7 @@ export class TutorialHandenScene extends Phaser.Scene{
       this.uitlegAudio.pause();
       this.probeerHartje.pause();      
       this.scene.launch('timeOut', {currentScene: 'gameplay'});  
-    }else if(this.pausedScore <= 150 && this.pausedScore >= 100){ 
+    }else if(this.pausedScore <= 250 && this.pausedScore >= 200){ 
       this.afsluiten.play();
       this.afsluiten.on('complete', this.handleShutDown, this.scene.scene);
     }else if(this.pausedScore === 0){
