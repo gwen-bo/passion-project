@@ -19,7 +19,7 @@ Deze versie focust enkel op de handen om het spelen thuis, iets makkelijker te m
 
 - Installatie *(fysiek)*
 - Online (at-home) versie *(link)*
-- Broncode *(zip)*
+- Broncode (van zowel installatie als broncode) *(zip)*
 - GitHub link *(link)*
 - Blog met documentatie van het proces/ research/.. *(link)*
 - Movie to show *(mp4)*
@@ -29,5 +29,6 @@ Deze versie focust enkel op de handen om het spelen thuis, iets makkelijker te m
 
 ## Links
     gwenbogaertpassionproject.wordpress.com (blog)
+    github.com/gwen-bo/passion-project (fysieke versie)
     github.com/gwen-bo/passion-project-web (at-home versie)
     ondersteboven-van-jou.netlify.app (at-home versie)

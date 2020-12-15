@@ -33,7 +33,7 @@ class PoseNetPlugin extends Phaser.Plugins.BasePlugin {
 
 
         this.$webcam.addEventListener('loadeddata', () => {
-            console.log('webcam loaded');
+            // console.log('webcam loaded');
             this.loaded = true; 
         });
     }
